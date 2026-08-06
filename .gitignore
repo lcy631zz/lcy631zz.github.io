@@ -1,17 +1,8 @@
-# Hugo 资源目录（非必需，可忽略）
-/public/
-/resources/_gen/
-/assets/jscons/
-/.hugo_build.lock
-
-# Hugo 构建产物（已在仓库根目录部署）
-# public/ 目录的内容已复制到根目录，无需单独提交
-
-# 系统文件
+# System files
 .DS_Store
 Thumbs.db
 
-# 编辑器
+# Editor files
 .idea/
 .vscode/
 *.swp
