@@ -63,3 +63,5 @@ ehthumbs.db
 *.log
 *.tmp
 .cache/
+.githooks/
+.githooks/
