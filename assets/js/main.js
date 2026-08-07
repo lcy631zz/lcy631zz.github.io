@@ -33,11 +33,8 @@ function render(){
     document.getElementById('aRole').textContent=d.about.role;
     document.getElementById('aIntroTitle').textContent=d.about.intro_title;
     document.getElementById('aIntro').textContent=d.about.intro_text;
-    document.getElementById('aSkillsTitle').textContent=d.about.skills_title;
     document.getElementById('aInfoTitle').textContent=d.about.info_title;
     document.getElementById('aInfo').textContent=d.about.info_text;
-    const sk=document.getElementById('skillTags');
-    sk.innerHTML=d.about.skills.length?d.about.skills.map(s=>'<span class="skill-tag">'+s+'</span>').join(''):'<span style="color:var(--text3);font-size:.85rem">'+na()+'</span>';
 
     document.getElementById('wDesc').textContent=d.articles.desc;
     document.getElementById('yDesc').textContent=d.yin.desc;

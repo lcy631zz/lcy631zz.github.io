@@ -16,9 +16,7 @@
       "name": "lcy631zz",
       "role": "一名大学生",
       "intro_title": "自我介绍",
-      "intro_text": "你好！👋\n我是 lcy631zz，一名热爱编程与创作的大学生。\n这个博客是我记录学习、分享想法、展示项目的空间。",
-      "skills_title": "技能与工具",
-      "skills": ["HTML / CSS", "JavaScript", "Python", "Git", "Hugo"],
+      "intro_text": "你好！👋\n我是 lcy631zz，一名大学生。\n这个博客是我记录学习、分享想法、展示项目的空间。",
       "info_title": "基本信息",
       "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
     },
@@ -61,9 +59,7 @@
       "name": "lcy631zz",
       "role": "一名大學生",
       "intro_title": "自我介紹",
-      "intro_text": "你好！👋\n我是 lcy631zz，一名熱愛編程與創作的大學生。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
-      "skills_title": "技能與工具",
-      "skills": ["HTML / CSS", "JavaScript", "Python", "Git", "Hugo"],
+      "intro_text": "你好！👋\n我是 lcy631zz，一名大學生。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
       "info_title": "基本資訊",
       "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
     },
@@ -106,9 +102,7 @@
       "name": "lcy631zz",
       "role": "University Student",
       "intro_title": "Introduction",
-      "intro_text": "Hi! 👋\nI'm lcy631zz, a university student passionate about programming and creation.\nThis blog is my space to document learning, share ideas, and showcase projects.",
-      "skills_title": "Skills & Tools",
-      "skills": ["HTML / CSS", "JavaScript", "Python", "Git", "Hugo"],
+      "intro_text": "Hi! 👋\nI'm lcy631zz, a university student.\nThis blog is my space to document learning, share ideas, and showcase projects.",
       "info_title": "Basic Info",
       "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
     },
