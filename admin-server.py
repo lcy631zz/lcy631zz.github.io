@@ -44,6 +44,8 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
                 result = self.add_travel(params)
             elif content_type == 'project':
                 result = self.create_project(title, params)
+            elif content_type == 'zhai':
+                result = self.add_zhai(params)
             else:
                 result = {'error': '未知类型'}
 
@@ -69,7 +71,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(html.encode('utf-8'))
 
     def get_data(self):
-        data = {'posts': [], 'photos': 0, 'travels': 0, 'projects': 0}
+        data = {'posts': [], 'photos': 0, 'travels': 0, 'projects': 0, 'excerpts': 0}
 
         blog_dir = os.path.join(BLOG_DIR, 'content', 'blog')
         if os.path.isdir(blog_dir):
@@ -93,6 +95,12 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         proj_dir = os.path.join(BLOG_DIR, 'content', 'projects')
         if os.path.isdir(proj_dir):
             data['projects'] = len([d for d in os.listdir(proj_dir) if os.path.isdir(os.path.join(proj_dir, d))])
+
+        zhai_file = os.path.join(BLOG_DIR, 'data', 'zhai.json')
+        if os.path.isfile(zhai_file):
+            with open(zhai_file, 'r', encoding='utf-8') as f:
+                zhai = json.load(f)
+                data['excerpts'] = len(zhai.get('items', []))
 
         return data
 
@@ -178,6 +186,30 @@ tags: {tags_yaml}
             item['place'] = place
         if caption:
             item['caption'] = caption
+        data['items'].append(item)
+
+        with open(data_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+        return {'success': True, 'count': len(data['items'])}
+
+    def add_zhai(self, params):
+        quote = params.get('quote', [''])[0].strip()
+        source = params.get('source', [''])[0].strip()
+        note = params.get('note', [''])[0].strip()
+
+        if not quote:
+            return {'error': '摘抄内容不能为空'}
+
+        data_file = os.path.join(BLOG_DIR, 'data', 'zhai.json')
+        with open(data_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        item = {'quote': quote}
+        if source:
+            item['source'] = source
+        if note:
+            item['note'] = note
         data['items'].append(item)
 
         with open(data_file, 'w', encoding='utf-8') as f:
@@ -463,6 +495,10 @@ link: "{link}"
                 <div class="num" id="statProjects">-</div>
                 <div class="label">项目</div>
             </div>
+            <div class="stat-card">
+                <div class="num" id="statExcerpts">-</div>
+                <div class="label">摘抄</div>
+            </div>
         </div>
 
         <!-- 消息提示 -->
@@ -474,6 +510,7 @@ link: "{link}"
             <button class="tab-btn" onclick="switchTab('photo')">🖼️ 加照片</button>
             <button class="tab-btn" onclick="switchTab('travel')">✈️ 加旅行</button>
             <button class="tab-btn" onclick="switchTab('project')">📁 加项目</button>
+            <button class="tab-btn" onclick="switchTab('zhai')">📖 加摘抄</button>
         </div>
 
         <!-- 写文章 -->
@@ -614,6 +651,27 @@ link: "{link}"
                 <button type="submit" class="btn-submit" id="btn-project">添加项目</button>
             </form>
         </div>
+
+        <!-- 加摘抄 -->
+        <div class="form-card" id="form-zhai">
+            <h2>添加读书摘抄</h2>
+            <p class="desc">记录书中打动你的文字。</p>
+            <form onsubmit="return submitForm(event, 'zhai')">
+                <div class="form-group">
+                    <label>摘抄内容 <span class="required">*</span></label>
+                    <textarea name="quote" placeholder="例如：人间有味是清欢。" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>出处</label>
+                    <input type="text" name="source" placeholder="例如：苏轼《浣溪沙》">
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <input type="text" name="note" placeholder="例如：最喜欢的诗句">
+                </div>
+                <button type="submit" class="btn-submit" id="btn-zhai">添加摘抄</button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -626,6 +684,7 @@ link: "{link}"
                     document.getElementById('statPhotos').textContent = data.photos;
                     document.getElementById('statTravels').textContent = data.travels;
                     document.getElementById('statProjects').textContent = data.projects;
+                    document.getElementById('statExcerpts').textContent = data.excerpts;
                 })
                 .catch(() => {});
         }

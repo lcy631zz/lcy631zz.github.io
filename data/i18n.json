@@ -28,9 +28,15 @@
     "yin": {
       "title": "荫",
       "desc": "一方宁静的角落，种下思绪，收获平和。",
+      "hub_desc": "一方宁静的角落",
       "quote": "静水流深，沧笙踏歌。",
       "quote_author": "佚名",
       "items": []
+    },
+    "zhai": {
+      "title": "摘",
+      "desc": "读书摘抄，记录那些打动我的文字。",
+      "hub_desc": "读书摘抄与灵感"
     },
     "projects": {
       "title": "项目",
@@ -40,6 +46,7 @@
     "xing": {
       "title": "行",
       "desc": "走过的路，看过的风景，都在这里。",
+      "hub_desc": "走过的路，看过的风景",
       "items": []
     },
     "footer": "用 ❤ 与代码构建 · 2026"
@@ -73,9 +80,15 @@
     "yin": {
       "title": "蔭",
       "desc": "一方寧靜的角落，種下思緒，收獲平和。",
+      "hub_desc": "一方寧靜的角落",
       "quote": "靜水流深，滄笙踏歌。",
       "quote_author": "佚名",
       "items": []
+    },
+    "zhai": {
+      "title": "摘",
+      "desc": "讀書摘抄，記錄那些打動我的文字。",
+      "hub_desc": "讀書摘抄與靈感"
     },
     "projects": {
       "title": "項目",
@@ -85,6 +98,7 @@
     "xing": {
       "title": "行",
       "desc": "走過的路，看過的風景，都在這裡。",
+      "hub_desc": "走過的路，看過的風景",
       "items": []
     },
     "footer": "用 ❤ 與代碼構建 · 2026"
@@ -118,9 +132,15 @@
     "yin": {
       "title": "Sanctuary",
       "desc": "A quiet corner for peace and inspiration.",
+      "hub_desc": "A quiet corner for peace",
       "quote": "Still waters run deep.",
       "quote_author": "Anonymous",
       "items": []
+    },
+    "zhai": {
+      "title": "Excerpts",
+      "desc": "Book quotes and passages that moved me.",
+      "hub_desc": "Reading Notes"
     },
     "projects": {
       "title": "Projects",
@@ -130,6 +150,7 @@
     "xing": {
       "title": "Travels",
       "desc": "Places I've been, sights I've seen.",
+      "hub_desc": "Places I've been, sights I've seen",
       "items": []
     },
     "footer": "Built with ❤ & Code · 2026"

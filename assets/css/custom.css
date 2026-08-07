@@ -255,6 +255,15 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .xing-item:hover .xing-caption{opacity:1}
 .xing-item .xing-place{position:absolute;top:12px;left:12px;padding:4px 10px;background:rgba(232,120,10,.85);color:#fff;border-radius:100px;font-size:.75rem;font-weight:500}
 
+/* Zhai list (reading excerpts) */
+.page-zhai .page-divider{background:var(--red)}.page-zhai .page-title{color:var(--red)}
+.zhai-list{display:flex;flex-direction:column;gap:20px}
+.zhai-item{padding:28px 32px;background:var(--white);border-radius:var(--r-m);border:1px solid rgba(0,0,0,.04);cursor:pointer;transition:var(--ease)}
+.zhai-item:hover{box-shadow:var(--sh-m);border-color:rgba(212,52,47,.12);transform:translateX(4px)}
+.zhai-quote{font-family:var(--serif);font-size:1.15rem;color:var(--text);line-height:1.9;margin-bottom:12px;font-style:italic}
+.zhai-item cite{display:block;color:var(--red);font-size:.88rem;font-weight:500;margin-bottom:8px}
+.zhai-note{color:var(--text3);font-size:.82rem;padding-top:8px;border-top:1px solid var(--light)}
+
 /* Projects list */
 .page-projects .page-divider{background:var(--red)}.page-projects .page-title{color:var(--red)}
 .project-list{display:flex;flex-direction:column;gap:20px}

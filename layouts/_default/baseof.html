@@ -25,6 +25,7 @@
         <ul class="nav-links">
             <li><a href="/about/">我</a></li>
             <li><a href="/blog/">文</a></li>
+            <li><a href="/zhai/">摘</a></li>
             <li><a href="/yin/">荫</a></li>
             <li><a href="/xing/">行</a></li>
             <li><a href="/projects/">项目</a></li>
@@ -60,7 +61,7 @@
 
 {{ $starfield := resources.Get "js/starfield.js" | resources.Minify | resources.Fingerprint }}
 <script src="{{ $starfield.RelPermalink }}"></script>
-<script>window.I18N = {{ site.Data.i18n | jsonify }}; window.YIN = {{ site.Data.yin | jsonify }}; window.XING = {{ site.Data.xing | jsonify }};</script>
+<script>window.I18N = {{ site.Data.i18n | jsonify }}; window.YIN = {{ site.Data.yin | jsonify }}; window.XING = {{ site.Data.xing | jsonify }}; window.ZHAI = {{ site.Data.zhai | jsonify }};</script>
 {{ $main := resources.Get "js/main.js" | resources.Minify | resources.Fingerprint }}
 <script src="{{ $main.RelPermalink }}"></script>
 </body>

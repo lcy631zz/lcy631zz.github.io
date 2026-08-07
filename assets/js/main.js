@@ -10,8 +10,10 @@ function getPage() {
     if (p === '/projects') return 'projects';
     if (p === '/yin') return 'yin';
     if (p === '/xing') return 'xing';
+    if (p === '/zhai') return 'zhai';
     if (p.startsWith('/blog/')) return 'blog-single';
     if (p.startsWith('/projects/')) return 'project-single';
+    if (p.startsWith('/zhai/')) return 'zhai-single';
     return 'other';
 }
 
@@ -21,10 +23,14 @@ function loadContent() {
     try {
         DATA = window.I18N;
     } catch (e) {
-        console.error('Failed to load i18n data', e);
+        console.error('[i18n] Failed to load data:', e);
         return;
     }
-    render();
+    try {
+        render();
+    } catch (e) {
+        console.error('[render] Error:', e);
+    }
 }
 
 function t(k) { return DATA?.[lang]?.[k] ?? ''; }
@@ -33,6 +39,7 @@ function na() { return lang === 'en' ? 'N/A' : '无'; }
 function render() {
     if (!DATA) return;
     const d = DATA[lang];
+    if (!d) return;
     const page = getPage();
 
     /* Site name (all pages) */
@@ -41,58 +48,63 @@ function render() {
 
     /* Homepage hero elements */
     if (page === 'home') {
-        const map = {
-            hBadge: d.hero.badge,
-            hT1: d.hero.title_1,
-            hTHL: d.hero.title_hl,
-            hT2: d.hero.title_2,
-            hT3: d.hero.title_3,
-            hTHL2: d.hero.title_hl2,
-            hT4: d.hero.title_4,
-            hSub: d.hero.subtitle,
-            sHint: lang === 'en' ? 'Scroll Down' : '向下探索',
-            hubAboutTitle: d.about.name,
-            hubAboutDesc: d.about.intro_text.split('\n')[0] || (lang === 'en' ? 'About Me' : '关于我'),
-            hubArtTitle: d.articles.title,
-            hubArtDesc: d.articles.hub_desc || d.articles.desc,
-            hubProjTitle: d.projects.title,
-            hubProjDesc: d.projects.hub_desc || d.projects.desc
-        };
-        for (const [id, val] of Object.entries(map)) {
-            const el = $(id);
-            if (el) el.textContent = val;
-        }
+        setText('hBadge', d.hero?.badge);
+        setText('hT1', d.hero?.title_1);
+        setText('hTHL', d.hero?.title_hl);
+        setText('hT2', d.hero?.title_2);
+        setText('hT3', d.hero?.title_3);
+        setText('hTHL2', d.hero?.title_hl2);
+        setText('hT4', d.hero?.title_4);
+        setText('hSub', d.hero?.subtitle);
+        setText('sHint', lang === 'en' ? 'Scroll Down' : '向下探索');
+        setText('hubAboutTitle', d.about?.name);
+        setText('hubArtTitle', d.articles?.title);
+        setText('hubArtDesc', d.articles?.hub_desc || d.articles?.desc);
+        setText('hubProjTitle', d.projects?.title);
+        setText('hubProjDesc', d.projects?.hub_desc || d.projects?.desc);
+        setText('hubZhaiTitle', d.zhai?.title);
+        setText('hubZhaiDesc', d.zhai?.hub_desc || d.zhai?.desc);
+        setText('hubYinTitle', d.yin?.title);
+        setText('hubYinDesc', d.yin?.hub_desc || d.yin?.desc);
+        setText('hubXingTitle', d.xing?.title);
+        setText('hubXingDesc', d.xing?.hub_desc || d.xing?.desc);
         requestAnimationFrame(() => {
-            document.querySelectorAll('#hero .fi').forEach(el => el.classList.add('v'));
+            const hero = $('hero');
+            if (hero) hero.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
         });
     }
 
     /* About page */
     if (page === 'about') {
         const a = d.about;
-        const ids = { aName: a.name, aRole: a.role, aIntroTitle: a.intro_title, aIntro: a.intro_text, aInfoTitle: a.info_title, aInfo: a.info_text };
-        for (const [id, val] of Object.entries(ids)) {
-            const el = $(id);
-            if (el) el.textContent = val;
-        }
+        setText('aName', a?.name);
+        setText('aRole', a?.role);
+        setText('aIntroTitle', a?.intro_title);
+        setText('aIntro', a?.intro_text);
+        setText('aInfoTitle', a?.info_title);
+        setText('aInfo', a?.info_text);
     }
 
     /* Yin section page */
     if (page === 'yin') {
-        const pd = $('pageDesc');
-        if (pd) pd.textContent = d.yin.desc;
+        setText('pageDesc', d.yin?.desc);
         const yqt = $('yQuoteText'), yqa = $('yQuoteAuthor'), yq = $('yinQuote');
-        if (yqt) yqt.textContent = d.yin.quote;
-        if (yqa) yqa.textContent = d.yin.quote_author;
-        if (yq && d.yin.quote) yq.style.display = 'block';
+        if (yqt) yqt.textContent = d.yin?.quote || '';
+        if (yqa) yqa.textContent = d.yin?.quote_author || '';
+        if (yq) yq.style.display = d.yin?.quote ? 'block' : 'none';
         renderYinGrid();
     }
 
     /* Xing section page */
     if (page === 'xing') {
-        const pd = $('pageDesc');
-        if (pd) pd.textContent = d.xing.desc;
+        setText('pageDesc', d.xing?.desc);
         renderXingGrid();
+    }
+
+    /* Zhai section page */
+    if (page === 'zhai') {
+        setText('pageDesc', d.zhai?.desc);
+        renderZhaiList();
     }
 
     /* Language switcher button states */
@@ -102,6 +114,12 @@ function render() {
 
     /* Navigation active state */
     setNavActive(page);
+}
+
+/* Helper: safely set element text */
+function setText(id, val) {
+    const el = $(id);
+    if (el && val !== undefined) el.textContent = val;
 }
 
 /* Render yin photo grid */
@@ -145,6 +163,42 @@ function renderXingGrid() {
     });
 }
 
+/* Render zhai quotes list */
+function renderZhaiList() {
+    const zl = $('zhaiList');
+    if (!zl) return;
+    if (!window.ZHAI || !window.ZHAI.items || !window.ZHAI.items.length) {
+        zl.innerHTML = '<div class="empty"><div class="empty-icon">📖</div>' + na() + '</div>';
+        return;
+    }
+    zl.innerHTML = window.ZHAI.items.map((z, i) => {
+        const quote = (z.quote || '').replace(/'/g, "\\'");
+        const source = z.source ? '<cite>—— ' + z.source + '</cite>' : '';
+        return '<div class="zhai-item fi" onclick="openZhaiModal(' + i + ')">' +
+            '<div class="zhai-quote">“' + quote + '”</div>' +
+            source +
+            (z.note ? '<div class="zhai-note">' + z.note + '</div>' : '') +
+            '</div>';
+    }).join('');
+    requestAnimationFrame(() => {
+        zl.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
+    });
+}
+
+/* Open a zhai quote in modal */
+function openZhaiModal(i) {
+    const z = window.ZHAI.items[i];
+    if (!z) return;
+    const quote = (z.quote || '').replace(/'/g, "\\'");
+    const source = z.source || '';
+    const note = z.note || '';
+    document.getElementById('mTitle').textContent = source || (lang === 'en' ? 'Excerpt' : '摘抄');
+    document.getElementById('mMeta').innerHTML = note ? '<span>' + note + '</span>' : '';
+    document.getElementById('mBody').innerHTML = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">“' + quote + '”</blockquote>';
+    document.getElementById('artModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
 /* Highlight active nav link */
 function setNavActive(page) {
     const nav = document.querySelector('.nav-links');
@@ -156,8 +210,10 @@ function setNavActive(page) {
         'projects': '/projects/',
         'yin': '/yin/',
         'xing': '/xing/',
+        'zhai': '/zhai/',
         'blog-single': '/blog/',
-        'project-single': '/projects/'
+        'project-single': '/projects/',
+        'zhai-single': '/zhai/'
     };
     const target = map[page] || '';
     nav.querySelectorAll('a').forEach(a => {
