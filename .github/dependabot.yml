@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Hugo 模块依赖（go.mod）
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "lcy631zz"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps"
+      include: "scope"
+
+  # GitHub Actions 工作流依赖
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps"
