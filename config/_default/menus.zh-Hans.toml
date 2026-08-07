@@ -1,0 +1,30 @@
+# -- Main Menu --
+
+[[main]]
+  name = "首页"
+  pageRef = ""
+  weight = 1
+
+[[main]]
+  name = "关于"
+  pageRef = "about"
+  weight = 2
+
+[[main]]
+  name = "博客"
+  pageRef = "blog"
+  weight = 3
+
+[[main]]
+  name = "项目"
+  pageRef = "projects"
+  weight = 4
+
+[[main]]
+  name = "GitHub"
+  url = "https://github.com/lcy631zz"
+  weight = 5
+  [main.params]
+    icon = "github"
+    showName = true
+    target = "_blank"

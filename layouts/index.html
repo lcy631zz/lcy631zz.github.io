@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Site.Title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    {{ $css := resources.Get "css/custom.css" | resources.Minify | resources.Fingerprint }}
+    <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+    <div class="nav-inner">
+        <div class="nav-left">
+            <a href="#" class="logo"><span class="logo-icon">✿</span><span id="siteName"></span></a>
+            <div class="lang-sw" id="langSw">
+                <button class="lang-btn on" data-lang="zh-CN" onclick="setLang('zh-CN')">简中</button>
+                <button class="lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">繁體</button>
+                <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#wo" class="on">我</a></li>
+            <li><a href="#wen">文</a></li>
+            <li><a href="#yin">荫</a></li>
+            <li><a href="#xing">行</a></li>
+            <li><a href="#xiangmu">项目</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+    <canvas class="hero-canvas" id="cv"></canvas>
+    <div class="hero-content">
+        <div class="hero-badge" id="hBadge"></div>
+        <h1 class="hero-title"><span id="hT1"></span><span class="hl" id="hTHL"></span><span id="hT2"></span><br><span id="hT3"></span><span class="hl" id="hTHL2"></span><span id="hT4"></span></h1>
+        <p class="hero-sub" id="hSub"></p>
+        <a href="#wo" class="hero-cta"><span id="hCta"></span> <span>↓</span></a>
+    </div>
+    <div class="scroll-hint" id="scrollHint"><span id="sHint">向下滚动</span><div class="arrow"></div></div>
+</section>
+
+<!-- 我 -->
+<section class="section section-red" id="wo">
+    <div class="section-inner">
+        <div class="divider"></div>
+        <h2 class="section-title">我</h2>
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="avatar"><span style="font-size:4.5rem">👤</span></div>
+                <h3 class="about-name" id="aName"></h3>
+                <p class="about-role" id="aRole"></p>
+                <div class="about-links">
+                    <a href="mailto:54363688@qq.com" title="Email">✉</a>
+                    <a href="https://github.com/lcy631zz" title="GitHub" target="_blank">⚡</a>
+                </div>
+            </div>
+            <div class="about-details">
+                <div class="about-block"><h3><span class="ic">💬</span><span id="aIntroTitle"></span></h3><p id="aIntro"></p></div>
+                <div class="about-block"><h3><span class="ic">🛠️</span><span id="aSkillsTitle"></span></h3><div class="skill-tags" id="skillTags"></div></div>
+                <div class="about-block"><h3><span class="ic">📍</span><span id="aInfoTitle"></span></h3><p id="aInfo"></p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 文 -->
+<section class="section section-red" id="wen">
+    <div class="section-inner">
+        <div class="divider"></div>
+        <h2 class="section-title">文</h2>
+        <p class="section-desc" id="wDesc"></p>
+        <div class="article-grid" id="artGrid"></div>
+    </div>
+</section>
+
+<!-- 荫 -->
+<section class="section section-green" id="yin">
+    <div class="section-inner">
+        <div class="divider"></div>
+        <h2 class="section-title">荫</h2>
+        <p class="section-desc" id="yDesc"></p>
+        <div class="yin-grid" id="yinGrid"></div>
+        <div class="yin-quote"><blockquote id="yQuote"></blockquote><cite id="yQuoteA"></cite></div>
+    </div>
+</section>
+
+<!-- 行 -->
+<section class="section section-orange" id="xing">
+    <div class="section-inner">
+        <div class="divider"></div>
+        <h2 class="section-title">行</h2>
+        <p class="section-desc" id="xDesc"></p>
+        <div class="xing-grid" id="xingGrid"></div>
+    </div>
+</section>
+
+<!-- 项目 -->
+<section class="section section-red" id="xiangmu">
+    <div class="section-inner">
+        <div class="divider"></div>
+        <h2 class="section-title">项目</h2>
+        <p class="section-desc" id="pDesc"></p>
+        <div class="project-list" id="projList"></div>
+    </div>
+</section>
+
+<footer class="footer"><p id="footer"></p></footer>
+
+<!-- Article Modal -->
+<div class="modal-overlay" id="artModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-header"><h2 id="mTitle"></h2><div class="meta" id="mMeta"></div></div>
+        <div class="modal-body" id="mBody"></div>
+    </div>
+</div>
+
+<!-- Lightbox -->
+<div class="modal-overlay" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <img class="lightbox-img" id="lbImg" src="" alt="">
+    <div class="lightbox-caption" id="lbCap"></div>
+</div>
+
+{{ $starfield := resources.Get "js/starfield.js" | resources.Minify | resources.Fingerprint }}
+<script src="{{ $starfield.RelPermalink }}"></script>
+{{ $main := resources.Get "js/main.js" | resources.Minify | resources.Fingerprint }}
+<script src="{{ $main.RelPermalink }}"></script>
+
+{{ $articles := slice }}
+{{ range where .Site.RegularPages "Section" "blog" }}
+  {{ $tag := "" }}
+  {{ with .Params.tags }}{{ $tag = index . 0 }}{{ else }}{{ $tag = .Section }}{{ end }}
+  {{ $articles = $articles | append (dict "title" .Title "date" (.Date.Format "2006-01-02") "tag" $tag "excerpt" (.Plain | truncate 200) "readTime" (printf "%d min read" .ReadingTime) "content" (.Content | safeHTML) "link" .Permalink) }}
+{{ end }}
+{{ $projects := slice }}
+{{ range where .Site.RegularPages "Section" "projects" }}
+  {{ $ptags := slice }}
+  {{ with .Params.tags }}{{ $ptags = . }}{{ else }}{{ $ptags = slice "" }}{{ end }}
+  {{ $projects = $projects | append (dict "title" .Title "desc" (.Plain | truncate 200) "tags" $ptags "link" .Permalink) }}
+{{ end }}
+<script>
+window.I18N = {{ .Site.Data.i18n | jsonify | safeJS }};
+window.ARTICLES = {{ $articles | jsonify | safeJS }};
+window.PROJECTS = {{ $projects | jsonify | safeJS }};
+window.YIN = {{ .Site.Data.yin | jsonify | safeJS }};
+window.XING = {{ .Site.Data.xing | jsonify | safeJS }};
+</script>
+<script>loadContent();</script>
+</body>
+</html>

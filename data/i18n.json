@@ -1,0 +1,137 @@
+{
+  "zh-CN": {
+    "site_name": "空间",
+    "hero": {
+      "badge": "欢迎来到我的博客",
+      "title_1": "记录",
+      "title_hl": "生活",
+      "title_2": "与",
+      "title_3": "探索",
+      "title_hl2": "技术",
+      "title_4": "的旅程",
+      "subtitle": "这里是我在互联网上的一方小天地，记录着思考、创作与成长的点滴。",
+      "cta": "了解更多"
+    },
+    "about": {
+      "name": "lcy631zz",
+      "role": "一名大学生",
+      "intro_title": "自我介绍",
+      "intro_text": "你好！👋\n我是 lcy631zz，一名热爱编程与创作的大学生。\n这个博客是我记录学习、分享想法、展示项目的空间。",
+      "skills_title": "技能与工具",
+      "skills": ["HTML / CSS", "JavaScript", "Python", "Git", "Hugo"],
+      "info_title": "基本信息",
+      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+    },
+    "articles": {
+      "title": "文",
+      "desc": "记录技术探索、学习心得与生活中的思考。"
+    },
+    "yin": {
+      "title": "荫",
+      "desc": "一方宁静的角落，种下思绪，收获平和。",
+      "quote": "静水流深，沧笙踏歌。",
+      "quote_author": "佚名",
+      "items": []
+    },
+    "projects": {
+      "title": "项目",
+      "desc": "一些我投入时间和热情去做的事情。"
+    },
+    "xing": {
+      "title": "行",
+      "desc": "走过的路，看过的风景，都在这里。",
+      "items": []
+    },
+    "footer": "用 ❤ 与代码构建 · 2026"
+  },
+  "zh-TW": {
+    "site_name": "空間",
+    "hero": {
+      "badge": "歡迎來到我的部落格",
+      "title_1": "記錄",
+      "title_hl": "生活",
+      "title_2": "與",
+      "title_3": "探索",
+      "title_hl2": "技術",
+      "title_4": "的旅程",
+      "subtitle": "這裡是我在互聯網上的一方小天地，記錄著思考、創作與成長的點滴。",
+      "cta": "瞭解得更多"
+    },
+    "about": {
+      "name": "lcy631zz",
+      "role": "一名大學生",
+      "intro_title": "自我介紹",
+      "intro_text": "你好！👋\n我是 lcy631zz，一名熱愛編程與創作的大學生。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
+      "skills_title": "技能與工具",
+      "skills": ["HTML / CSS", "JavaScript", "Python", "Git", "Hugo"],
+      "info_title": "基本資訊",
+      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+    },
+    "articles": {
+      "title": "文",
+      "desc": "記錄技術探索、學習心得與生活中的思考。"
+    },
+    "yin": {
+      "title": "蔭",
+      "desc": "一方寧靜的角落，種下思緒，收獲平和。",
+      "quote": "靜水流深，滄笙踏歌。",
+      "quote_author": "佚名",
+      "items": []
+    },
+    "projects": {
+      "title": "項目",
+      "desc": "一些我投入時間和熱情去做的事情。"
+    },
+    "xing": {
+      "title": "行",
+      "desc": "走過的路，看過的風景，都在這裡。",
+      "items": []
+    },
+    "footer": "用 ❤ 與代碼構建 · 2026"
+  },
+  "en": {
+    "site_name": "Space",
+    "hero": {
+      "badge": "Welcome to My Blog",
+      "title_1": "Documenting ",
+      "title_hl": "Life",
+      "title_2": " & ",
+      "title_3": "Exploring ",
+      "title_hl2": "Tech",
+      "title_4": "",
+      "subtitle": "A small corner of the internet where I record thoughts, creations, and growth.",
+      "cta": "Learn More"
+    },
+    "about": {
+      "name": "lcy631zz",
+      "role": "University Student",
+      "intro_title": "Introduction",
+      "intro_text": "Hi! 👋\nI'm lcy631zz, a university student passionate about programming and creation.\nThis blog is my space to document learning, share ideas, and showcase projects.",
+      "skills_title": "Skills & Tools",
+      "skills": ["HTML / CSS", "JavaScript", "Python", "Git", "Hugo"],
+      "info_title": "Basic Info",
+      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+    },
+    "articles": {
+      "title": "Articles",
+      "desc": "Recording thoughts, stories, and reflections."
+    },
+    "yin": {
+      "title": "Sanctuary",
+      "desc": "A quiet corner for peace and inspiration.",
+      "quote": "Still waters run deep.",
+      "quote_author": "Anonymous",
+      "items": []
+    },
+    "projects": {
+      "title": "Projects",
+      "desc": "Things I spend my time and passion on."
+    },
+    "xing": {
+      "title": "Travels",
+      "desc": "Places I've been, sights I've seen.",
+      "items": []
+    },
+    "footer": "Built with ❤ & Code · 2026"
+  }
+}

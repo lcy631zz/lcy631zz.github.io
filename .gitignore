@@ -23,6 +23,27 @@ desktop.ini
 /assets/jsconfig.json
 hugo_stats.json
 
+# Old static HTML files (replaced by Hugo source)
+/index.html
+/index.xml
+/index.json
+/sitemap.xml
+/404.html
+/robots.txt
+/site.webmanifest
+/favicon*.png
+/favicon.ico
+/android-chrome-*.png
+/apple-touch-icon.png
+/css/
+/js/
+/about/
+/blog/
+/projects/
+/tags/
+/categories/
+/page/
+
 # ============================================
 # Hugo Modules cache
 # ============================================
@@ -63,3 +84,4 @@ ehthumbs.db
 *.log
 *.tmp
 .cache/
+.githooks/
