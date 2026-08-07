@@ -5,6 +5,7 @@ description: "这是我的第一个项目展示"
 image: "img/project-cover.jpg"
 tags: ["示例"]
 link: "https://github.com/lcy631zz"
+period: "学习编程初期"
 ---
 
 ## 项目简介

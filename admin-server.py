@@ -107,10 +107,12 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
 
         pub_date = params.get('pub_date', [''])[0].strip()
         if pub_date:
-            date_value = pub_date.replace('T', ' ') + ':00'
+            date_value = pub_date
         else:
-            from datetime import datetime
-            date_value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            from datetime import date
+            date_value = date.today().isoformat()
+        period = params.get('period', [''])[0].strip()
+        period_yaml = f'period: "{period}"' if period else ''
         tags = params.get('tags', [''])[0].strip()
         tags_yaml = '[]'
         if tags:
@@ -124,6 +126,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         md = f'''---
 title: "{safe_title}"
 date: {date_value}
+{period_yaml}
 description: ""
 tags: {tags_yaml}
 ---
@@ -193,10 +196,12 @@ tags: {tags_yaml}
 
         pub_date = params.get('pub_date', [''])[0].strip()
         if pub_date:
-            date_value = pub_date.replace('T', ' ') + ':00'
+            date_value = pub_date
         else:
-            from datetime import datetime
-            date_value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            from datetime import date
+            date_value = date.today().isoformat()
+        period = params.get('period', [''])[0].strip()
+        period_yaml = f'period: "{period}"' if period else ''
         desc = params.get('desc', [''])[0].strip()
         tags = params.get('tags', [''])[0].strip()
         tags_yaml = '[]'
@@ -212,6 +217,7 @@ tags: {tags_yaml}
         md = f'''---
 title: "{safe_title}"
 date: {date_value}
+{period_yaml}
 description: "{desc}"
 image: "img/project-cover.jpg"
 tags: {tags_yaml}
@@ -476,9 +482,14 @@ link: "{link}"
             <p class="desc">写一篇散文、诗歌、随笔... 任何你想写的都可以。</p>
             <form onsubmit="return submitForm(event, 'post')">
                 <div class="form-group">
-                    <label>发布日期</label>
-                    <input type="datetime-local" name="pub_date" id="pub_date">
-                    <p class="hint">留空则使用当前时间</p>
+                    <label>日期</label>
+                    <input type="date" name="pub_date" id="pub_date">
+                    <p class="hint">留空则使用今天</p>
+                </div>
+                <div class="form-group">
+                    <label>时期</label>
+                    <input type="text" name="period" placeholder="例如：小学、2024年夏天、大学时期（可留空）">
+                    <p class="hint">用文字描述这篇文章的时间背景</p>
                 </div>
                 <div class="form-group">
                     <label>文章标题 <span class="required">*</span></label>
@@ -567,9 +578,14 @@ link: "{link}"
             <p class="desc">展示你的技术项目或作品。</p>
             <form onsubmit="return submitForm(event, 'project')">
                 <div class="form-group">
-                    <label>发布日期</label>
-                    <input type="datetime-local" name="pub_date" id="pub_date_project">
-                    <p class="hint">留空则使用当前时间</p>
+                    <label>日期</label>
+                    <input type="date" name="pub_date" id="pub_date_project">
+                    <p class="hint">留空则使用今天</p>
+                </div>
+                <div class="form-group">
+                    <label>时期</label>
+                    <input type="text" name="period" placeholder="例如：大学时期、2024年夏天（可留空）">
+                    <p class="hint">用文字描述这个项目的时间背景</p>
                 </div>
                 <div class="form-group">
                     <label>项目名称 <span class="required">*</span></label>
@@ -615,16 +631,14 @@ link: "{link}"
         }
         loadStats();
 
-        // 设置默认发布时间为当前时间
+        // 设置默认日期为今天
         function setDefaultDate() {
             const now = new Date();
-            const offset = now.getTimezoneOffset();
-            const local = new Date(now.getTime() - offset * 60000);
-            const iso = local.toISOString().slice(0, 16);
+            const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
             const d1 = document.getElementById('pub_date');
             const d2 = document.getElementById('pub_date_project');
-            if (d1 && !d1.value) d1.value = iso;
-            if (d2 && !d2.value) d2.value = iso;
+            if (d1 && d1.type === 'date' && !d1.value) d1.value = today;
+            if (d2 && d2.type === 'date' && !d2.value) d2.value = today;
         }
         setDefaultDate();
 

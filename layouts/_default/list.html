@@ -13,7 +13,9 @@
                 {{ range $pages }}
                 <a href="{{ .RelPermalink }}" class="blog-item fi">
                     <h3>{{ .Title }}</h3>
-                    <div class="meta">{{ .Date.Format "2006-01-02 15:04" }}</div>
+                    <div class="meta">
+                        {{ with .Params.period }}{{ . }}{{ else }}{{ .Date.Format "2006-01-02" }}{{ end }}
+                    </div>
                     <p class="excerpt">{{ .Plain | truncate 200 }}</p>
                 </a>
                 {{ end }}

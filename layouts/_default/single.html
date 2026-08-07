@@ -8,7 +8,11 @@
         <div class="detail-header">
             <h1 class="detail-title">{{ .Title }}</h1>
             <div class="detail-meta">
-                <span>{{ .Date.Format "2006-01-02 15:04" }}</span>
+                {{ with .Params.period }}
+                    <span style="font-weight:600;color:var(--red)">{{ . }}</span>
+                {{ else }}
+                    <span class="tag" style="background:var(--red-light);color:var(--red)">{{ .Date.Format "2006-01-02" }}</span>
+                {{ end }}
                 {{ if .Params.tags }}
                     {{ range .Params.tags }}
                         <span class="tag">{{ . }}</span>
