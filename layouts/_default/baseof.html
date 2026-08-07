@@ -15,7 +15,7 @@
 <nav class="navbar" id="navbar">
     <div class="nav-inner">
         <div class="nav-left">
-            <a href="/" class="logo"><span class="logo-icon">✿</span><span id="siteName"></span></a>
+            <a href="/" class="logo"><span class="logo-icon">✿</span><span id="siteName">{{ i18n "site_name" | default .Site.Title }}</span></a>
             <div class="lang-sw" id="langSw">
                 <button class="lang-btn on" data-lang="zh-CN" onclick="setLang('zh-CN')">简中</button>
                 <button class="lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">繁體</button>
@@ -57,7 +57,7 @@
     </div>
 </div>
 
-<footer class="footer"><p id="footer"></p></footer>
+<footer class="footer"><p id="footer">{{ i18n "footer" | default "用 ❤ 与代码构建 · 2026" }}</p></footer>
 
 {{ $starfield := resources.Get "js/starfield.js" | resources.Minify | resources.Fingerprint }}
 <script src="{{ $starfield.RelPermalink }}"></script>

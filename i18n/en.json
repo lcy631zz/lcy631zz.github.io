@@ -1,0 +1,52 @@
+{
+  "site_name": "Space",
+  "hero": {
+    "badge": "Welcome to My Blog",
+    "title_1": "Documenting ",
+    "title_hl": "Life",
+    "title_2": " & ",
+    "title_3": "Exploring ",
+    "title_hl2": "Tech",
+    "title_4": "",
+    "subtitle": "A small corner of the internet where I record thoughts, creations, and growth.",
+    "cta": "Learn More"
+  },
+  "about": {
+    "name": "lcy631zz",
+    "role": "University Student",
+    "intro_title": "Introduction",
+    "intro_text": "Hi! 👋\nI'm lcy631zz, a university student.\nThis blog is my space to document learning, share ideas, and showcase projects.",
+    "info_title": "Basic Info",
+    "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+  },
+  "articles": {
+    "title": "Articles",
+    "desc": "Recording thoughts, stories, and reflections.",
+    "hub_desc": "Literature & Writing"
+  },
+  "yin": {
+    "title": "Sanctuary",
+    "desc": "A quiet corner for peace and inspiration.",
+    "hub_desc": "A quiet corner for peace",
+    "quote": "Still waters run deep.",
+    "quote_author": "Anonymous",
+    "items": []
+  },
+  "zhai": {
+    "title": "Excerpts",
+    "desc": "Book quotes and passages that moved me.",
+    "hub_desc": "Reading Notes"
+  },
+  "projects": {
+    "title": "Projects",
+    "desc": "Things I spend my time and passion on.",
+    "hub_desc": "My Project Work"
+  },
+  "xing": {
+    "title": "Travels",
+    "desc": "Places I've been, sights I've seen.",
+    "hub_desc": "Places I've been, sights I've seen",
+    "items": []
+  },
+  "footer": "Built with ❤ & Code · 2026"
+}

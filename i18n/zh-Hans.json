@@ -1,0 +1,52 @@
+{
+  "site_name": "空间",
+  "hero": {
+    "badge": "欢迎来到我的博客",
+    "title_1": "记录",
+    "title_hl": "生活",
+    "title_2": "与",
+    "title_3": "探索",
+    "title_hl2": "技术",
+    "title_4": "的旅程",
+    "subtitle": "这里是我在互联网上的一方小天地，记录着思考、创作与成长的点滴。",
+    "cta": "了解更多"
+  },
+  "about": {
+    "name": "lcy631zz",
+    "role": "一名大学生",
+    "intro_title": "自我介绍",
+    "intro_text": "你好！👋\n我是 lcy631zz，一名大学生。\n这个博客是我记录学习、分享想法、展示项目的空间。",
+    "info_title": "基本信息",
+    "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+  },
+  "articles": {
+    "title": "文",
+    "desc": "记录技术探索、学习心得与生活中的思考。",
+    "hub_desc": "文学创作与思考"
+  },
+  "yin": {
+    "title": "荫",
+    "desc": "一方宁静的角落，种下思绪，收获平和。",
+    "hub_desc": "一方宁静的角落",
+    "quote": "静水流深，沧笙踏歌。",
+    "quote_author": "佚名",
+    "items": []
+  },
+  "zhai": {
+    "title": "摘",
+    "desc": "读书摘抄，记录那些打动我的文字。",
+    "hub_desc": "读书摘抄与灵感"
+  },
+  "projects": {
+    "title": "项目",
+    "desc": "一些我投入时间和热情去做的事情。",
+    "hub_desc": "我的项目作品"
+  },
+  "xing": {
+    "title": "行",
+    "desc": "走过的路，看过的风景，都在这里。",
+    "hub_desc": "走过的路，看过的风景",
+    "items": []
+  },
+  "footer": "用 ❤ 与代码构建 · 2026"
+}

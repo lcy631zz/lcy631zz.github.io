@@ -197,6 +197,7 @@ tags: {tags_yaml}
         quote = params.get('quote', [''])[0].strip()
         source = params.get('source', [''])[0].strip()
         note = params.get('note', [''])[0].strip()
+        img = params.get('img', [''])[0].strip()
 
         if not quote:
             return {'error': '摘抄内容不能为空'}
@@ -210,6 +211,8 @@ tags: {tags_yaml}
             item['source'] = source
         if note:
             item['note'] = note
+        if img:
+            item['img'] = img
         data['items'].append(item)
 
         with open(data_file, 'w', encoding='utf-8') as f:
@@ -668,6 +671,10 @@ link: "{link}"
                 <div class="form-group">
                     <label>备注</label>
                     <input type="text" name="note" placeholder="例如：最喜欢的诗句">
+                </div>
+                <div class="form-group">
+                    <label>配图路径</label>
+                    <input type="text" name="img" placeholder="例如：static/img/zhai-cover.jpg（可选）">
                 </div>
                 <button type="submit" class="btn-submit" id="btn-zhai">添加摘抄</button>
             </form>

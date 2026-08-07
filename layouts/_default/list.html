@@ -5,8 +5,8 @@
 <section class="page-section page-blog">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" style="color:var(--red)">文</h1>
-        <p class="page-desc">记录技术探索、学习心得与生活中的思考。</p>
+        <h1 class="page-title" style="color:var(--red)">{{ i18n "articles.title" | default "文" }}</h1>
+        <p class="page-desc">{{ i18n "articles.desc" | default "记录技术探索、学习心得与生活中的思考。" }}</p>
         <div class="blog-list">
             {{ $pages := where .Site.RegularPages "Section" "blog" }}
             {{ if $pages }}
@@ -30,8 +30,8 @@
 <section class="page-section page-projects">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" style="color:var(--red)">项目</h1>
-        <p class="page-desc">一些我投入时间和热情去做的事情。</p>
+        <h1 class="page-title" style="color:var(--red)">{{ i18n "projects.title" | default "项目" }}</h1>
+        <p class="page-desc">{{ i18n "projects.desc" | default "一些我投入时间和热情去做的事情。" }}</p>
         <div class="project-list">
             {{ $pages := where .Site.RegularPages "Section" "projects" }}
             {{ if $pages }}
@@ -63,8 +63,8 @@
 <section class="page-section page-yin">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" style="color:var(--green-dark)">荫</h1>
-        <p class="page-desc" id="pageDesc">一方宁静的角落，种下思绪，收获平和。</p>
+        <h1 class="page-title" style="color:var(--green-dark)">{{ i18n "yin.title" | default "荫" }}</h1>
+        <p class="page-desc" id="pageDesc">{{ i18n "yin.desc" | default "一方宁静的角落，种下思绪，收获平和。" }}</p>
         <div class="yin-grid" id="yinGrid"></div>
         <div class="yin-quote" id="yinQuote" style="display:none">
             <blockquote id="yQuoteText"></blockquote>
@@ -77,8 +77,8 @@
 <section class="page-section page-xing">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" style="color:var(--orange-dark)">行</h1>
-        <p class="page-desc" id="pageDesc">走过的路，看过的风景，都在这里。</p>
+        <h1 class="page-title" style="color:var(--orange-dark)">{{ i18n "xing.title" | default "行" }}</h1>
+        <p class="page-desc" id="pageDesc">{{ i18n "xing.desc" | default "走过的路，看过的风景，都在这里。" }}</p>
         <div class="xing-grid" id="xingGrid"></div>
     </div>
 </section>
@@ -87,8 +87,8 @@
 <section class="page-section page-zhai">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" style="color:var(--red)">摘</h1>
-        <p class="page-desc" id="pageDesc">读书摘抄，记录那些打动我的文字。</p>
+        <h1 class="page-title" style="color:var(--red)">{{ i18n "zhai.title" | default "摘" }}</h1>
+        <p class="page-desc" id="pageDesc">{{ i18n "zhai.desc" | default "读书摘抄，记录那些打动我的文字。" }}</p>
         <div class="zhai-list" id="zhaiList"></div>
     </div>
 </section>
@@ -98,15 +98,15 @@
     <div class="section-inner">
         <div style="max-width:720px;margin:0 auto;text-align:center">
             <div style="width:88px;height:88px;border-radius:50%;background:var(--red-light);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 20px">👤</div>
-            <h1 class="page-title" style="color:var(--red)" id="aName"></h1>
-            <p style="color:var(--text2);font-size:1.1rem;margin-bottom:32px" id="aRole"></p>
+            <h1 class="page-title" style="color:var(--red)" id="aName">{{ i18n "about.name" | default "lcy631zz" }}</h1>
+            <p style="color:var(--text2);font-size:1.1rem;margin-bottom:32px" id="aRole">{{ i18n "about.role" | default "一名大学生" }}</p>
         </div>
         <div style="max-width:720px;margin:0 auto">
             <div class="page-divider"></div>
-            <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aIntroTitle"></h2>
+            <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aIntroTitle">{{ i18n "about.intro_title" | default "自我介绍" }}</h2>
             <div id="aIntro" style="color:var(--text2);line-height:2;white-space:pre-line;margin-bottom:36px"></div>
             <div class="page-divider"></div>
-            <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aInfoTitle"></h2>
+            <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aInfoTitle">{{ i18n "about.info_title" | default "基本信息" }}</h2>
             <div id="aInfo" style="color:var(--text2);line-height:2;white-space:pre-line"></div>
             <div class="page-divider" style="margin-top:36px"></div>
             <div class="about-content detail-body">

@@ -263,6 +263,8 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .zhai-quote{font-family:var(--serif);font-size:1.15rem;color:var(--text);line-height:1.9;margin-bottom:12px;font-style:italic}
 .zhai-item cite{display:block;color:var(--red);font-size:.88rem;font-weight:500;margin-bottom:8px}
 .zhai-note{color:var(--text3);font-size:.82rem;padding-top:8px;border-top:1px solid var(--light)}
+.zhai-img{width:100%;max-height:300px;object-fit:cover;border-radius:var(--r-s);margin-bottom:16px;cursor:pointer;transition:var(--ease)}
+.zhai-img:hover{opacity:.9}
 
 /* Projects list */
 .page-projects .page-divider{background:var(--red)}.page-projects .page-title{color:var(--red)}

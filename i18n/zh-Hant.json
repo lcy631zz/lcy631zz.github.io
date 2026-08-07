@@ -1,0 +1,52 @@
+{
+  "site_name": "空間",
+  "hero": {
+    "badge": "歡迎來到我的部落格",
+    "title_1": "記錄",
+    "title_hl": "生活",
+    "title_2": "與",
+    "title_3": "探索",
+    "title_hl2": "技術",
+    "title_4": "的旅程",
+    "subtitle": "這裡是我在互聯網上的一方小天地，記錄著思考、創作與成長的點滴。",
+    "cta": "瞭解得更多"
+  },
+  "about": {
+    "name": "lcy631zz",
+    "role": "一名大學生",
+    "intro_title": "自我介紹",
+    "intro_text": "你好！👋\n我是 lcy631zz，一名大學生。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
+    "info_title": "基本資訊",
+    "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+  },
+  "articles": {
+    "title": "文",
+    "desc": "記錄技術探索、學習心得與生活中的思考。",
+    "hub_desc": "文學創作與思考"
+  },
+  "yin": {
+    "title": "蔭",
+    "desc": "一方寧靜的角落，種下思緒，收獲平和。",
+    "hub_desc": "一方寧靜的角落",
+    "quote": "靜水流深，滄笙踏歌。",
+    "quote_author": "佚名",
+    "items": []
+  },
+  "zhai": {
+    "title": "摘",
+    "desc": "讀書摘抄，記錄那些打動我的文字。",
+    "hub_desc": "讀書摘抄與靈感"
+  },
+  "projects": {
+    "title": "項目",
+    "desc": "一些我投入時間和熱情去做的事情。",
+    "hub_desc": "我的項目作品"
+  },
+  "xing": {
+    "title": "行",
+    "desc": "走過的路，看過的風景，都在這裡。",
+    "hub_desc": "走過的路，看過的風景",
+    "items": []
+  },
+  "footer": "用 ❤ 與代碼構建 · 2026"
+}

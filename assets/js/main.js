@@ -174,11 +174,16 @@ function renderZhaiList() {
     zl.innerHTML = window.ZHAI.items.map((z, i) => {
         const quote = (z.quote || '').replace(/'/g, "\\'");
         const source = z.source ? '<cite>—— ' + z.source + '</cite>' : '';
-        return '<div class="zhai-item fi" onclick="openZhaiModal(' + i + ')">' +
-            '<div class="zhai-quote">“' + quote + '”</div>' +
+        let html = '<div class="zhai-item fi" onclick="openZhaiModal(' + i + ')">';
+        if (z.img) {
+            const img = z.img.replace(/'/g, "\\'");
+            html += '<img class="zhai-img" src="' + img + '" alt="' + (z.source || '') + '" onclick="event.stopPropagation();openLightbox(\'' + img + '\',\'' + (z.source || '') + '\')">';
+        }
+        html += '<div class="zhai-quote">"' + quote + '"</div>' +
             source +
             (z.note ? '<div class="zhai-note">' + z.note + '</div>' : '') +
             '</div>';
+        return html;
     }).join('');
     requestAnimationFrame(() => {
         zl.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
@@ -193,8 +198,14 @@ function openZhaiModal(i) {
     const source = z.source || '';
     const note = z.note || '';
     document.getElementById('mTitle').textContent = source || (lang === 'en' ? 'Excerpt' : '摘抄');
-    document.getElementById('mMeta').innerHTML = note ? '<span>' + note + '</span>' : '';
-    document.getElementById('mBody').innerHTML = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">“' + quote + '”</blockquote>';
+    let body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">"' + quote + '"</blockquote>';
+    if (z.img) {
+        const img = z.img.replace(/'/g, "\\'");
+        body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + img + '\',\'' + source + '\')"></div>';
+    }
+    if (note) body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px">' + note + '</p>';
+    document.getElementById('mMeta').innerHTML = '';
+    document.getElementById('mBody').innerHTML = body;
     document.getElementById('artModal').classList.add('show');
     document.body.style.overflow = 'hidden';
 }
