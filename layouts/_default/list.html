@@ -1,0 +1,115 @@
+{{ define "main" }}
+{{ $sec := .Section }}
+
+{{ if eq $sec "blog" }}
+<section class="page-section page-blog">
+    <div class="section-inner">
+        <div class="page-divider"></div>
+        <h1 class="page-title" style="color:var(--red)">文</h1>
+        <p class="page-desc">记录技术探索、学习心得与生活中的思考。</p>
+        <div class="blog-list">
+            {{ $pages := where .Site.RegularPages "Section" "blog" }}
+            {{ if $pages }}
+                {{ range $pages }}
+                <a href="{{ .RelPermalink }}" class="blog-item fi">
+                    <h3>{{ .Title }}</h3>
+                    <div class="meta">{{ .Date.Format "2006-01-02" }}</div>
+                    <p class="excerpt">{{ .Plain | truncate 200 }}</p>
+                </a>
+                {{ end }}
+            {{ else }}
+                <div class="empty"><div class="empty-icon">📝</div>暂无文章</div>
+            {{ end }}
+        </div>
+    </div>
+</section>
+
+{{ else if eq $sec "projects" }}
+<section class="page-section page-projects">
+    <div class="section-inner">
+        <div class="page-divider"></div>
+        <h1 class="page-title" style="color:var(--red)">项目</h1>
+        <p class="page-desc">一些我投入时间和热情去做的事情。</p>
+        <div class="project-list">
+            {{ $pages := where .Site.RegularPages "Section" "projects" }}
+            {{ if $pages }}
+                {{ range $pages }}
+                <a href="{{ .RelPermalink }}" class="project-item fi">
+                    <div class="project-icon">📁</div>
+                    <div class="project-info">
+                        <h3>{{ .Title }}</h3>
+                        <p>{{ .Description | default (.Plain | truncate 120) }}</p>
+                    </div>
+                    {{ if .Params.tags }}
+                    <div class="project-tags">
+                        {{ range .Params.tags }}
+                            <span class="project-tag">{{ . }}</span>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                    <span class="project-arrow">→</span>
+                </a>
+                {{ end }}
+            {{ else }}
+                <div class="empty"><div class="empty-icon">📁</div>暂无项目</div>
+            {{ end }}
+        </div>
+    </div>
+</section>
+
+{{ else if eq $sec "yin" }}
+<section class="page-section page-yin">
+    <div class="section-inner">
+        <div class="page-divider"></div>
+        <h1 class="page-title" style="color:var(--green-dark)">荫</h1>
+        <p class="page-desc" id="pageDesc">一方宁静的角落，种下思绪，收获平和。</p>
+        <div class="yin-grid" id="yinGrid"></div>
+        <div class="yin-quote" id="yinQuote" style="display:none">
+            <blockquote id="yQuoteText"></blockquote>
+            <cite id="yQuoteAuthor"></cite>
+        </div>
+    </div>
+</section>
+
+{{ else if eq $sec "xing" }}
+<section class="page-section page-xing">
+    <div class="section-inner">
+        <div class="page-divider"></div>
+        <h1 class="page-title" style="color:var(--orange-dark)">行</h1>
+        <p class="page-desc" id="pageDesc">走过的路，看过的风景，都在这里。</p>
+        <div class="xing-grid" id="xingGrid"></div>
+    </div>
+</section>
+
+{{ else if eq $sec "about" }}
+<section class="page-section page-about">
+    <div class="section-inner">
+        <div style="max-width:720px;margin:0 auto;text-align:center">
+            <div style="width:88px;height:88px;border-radius:50%;background:var(--red-light);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 20px">👤</div>
+            <h1 class="page-title" style="color:var(--red)" id="aName"></h1>
+            <p style="color:var(--text2);font-size:1.1rem;margin-bottom:32px" id="aRole"></p>
+        </div>
+        <div style="max-width:720px;margin:0 auto">
+            <div class="page-divider"></div>
+            <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aIntroTitle"></h2>
+            <div id="aIntro" style="color:var(--text2);line-height:2;white-space:pre-line;margin-bottom:36px"></div>
+            <div class="page-divider"></div>
+            <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aInfoTitle"></h2>
+            <div id="aInfo" style="color:var(--text2);line-height:2;white-space:pre-line"></div>
+            <div class="page-divider" style="margin-top:36px"></div>
+            <div class="about-content detail-body">
+                {{ .Content }}
+            </div>
+        </div>
+    </div>
+</section>
+
+{{ else }}
+<section class="page-section">
+    <div class="section-inner">
+        <h1 class="page-title">{{ .Title }}</h1>
+        {{ .Content }}
+    </div>
+</section>
+{{ end }}
+{{ end }}

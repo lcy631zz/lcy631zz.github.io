@@ -1,6 +1,8 @@
 /* Starfield canvas animation */
 (function(){
-    const cv=document.getElementById('cv'),cx=cv.getContext('2d'),P=[],F=[];
+    const cv=document.getElementById('cv');
+    if(!cv)return; // No canvas on this page
+    const cx=cv.getContext('2d'),P=[],F=[];
     function rs(){cv.width=cv.parentElement.offsetWidth;cv.height=cv.parentElement.offsetHeight}
     rs();window.addEventListener('resize',rs);
     function R(a,b){return Math.random()*(b-a)+a}

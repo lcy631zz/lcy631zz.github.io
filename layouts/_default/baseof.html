@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} - {{ .Site.Title }}{{ end }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    {{ $css := resources.Get "css/custom.css" | resources.Minify | resources.Fingerprint }}
+    <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+</head>
+<body data-section="{{ if .IsHome }}home{{ else }}{{ .Section }}{{ end }}">
+
+<nav class="navbar" id="navbar">
+    <div class="nav-inner">
+        <div class="nav-left">
+            <a href="/" class="logo"><span class="logo-icon">✿</span><span id="siteName"></span></a>
+            <div class="lang-sw" id="langSw">
+                <button class="lang-btn on" data-lang="zh-CN" onclick="setLang('zh-CN')">简中</button>
+                <button class="lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">繁體</button>
+                <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/about/">我</a></li>
+            <li><a href="/blog/">文</a></li>
+            <li><a href="/yin/">荫</a></li>
+            <li><a href="/xing/">行</a></li>
+            <li><a href="/projects/">项目</a></li>
+        </ul>
+    </div>
+</nav>
+
+{{ block "main" . }}{{ end }}
+
+<!-- Lightbox for image viewing -->
+<div class="lightbox" id="lightbox">
+    <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+        <img class="lightbox-img" id="lbImg" src alt>
+        <div class="lightbox-caption" id="lbCap"></div>
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    </div>
+</div>
+
+<!-- Article modal (for backward compat) -->
+<div class="modal-overlay" id="artModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-header">
+            <h2 id="mTitle"></h2>
+            <div class="modal-meta" id="mMeta"></div>
+        </div>
+        <div class="modal-body" id="mBody"></div>
+    </div>
+</div>
+
+<footer class="footer"><p id="footer"></p></footer>
+
+{{ $starfield := resources.Get "js/starfield.js" | resources.Minify | resources.Fingerprint }}
+<script src="{{ $starfield.RelPermalink }}"></script>
+<script>window.I18N = {{ site.Data.i18n | jsonify }}; window.YIN = {{ site.Data.yin | jsonify }}; window.XING = {{ site.Data.xing | jsonify }};</script>
+{{ $main := resources.Get "js/main.js" | resources.Minify | resources.Fingerprint }}
+<script src="{{ $main.RelPermalink }}"></script>
+</body>
+</html>

@@ -22,7 +22,8 @@
     },
     "articles": {
       "title": "文",
-      "desc": "记录技术探索、学习心得与生活中的思考。"
+      "desc": "记录技术探索、学习心得与生活中的思考。",
+      "hub_desc": "文学创作与思考"
     },
     "yin": {
       "title": "荫",
@@ -33,7 +34,8 @@
     },
     "projects": {
       "title": "项目",
-      "desc": "一些我投入时间和热情去做的事情。"
+      "desc": "一些我投入时间和热情去做的事情。",
+      "hub_desc": "我的项目作品"
     },
     "xing": {
       "title": "行",
@@ -65,7 +67,8 @@
     },
     "articles": {
       "title": "文",
-      "desc": "記錄技術探索、學習心得與生活中的思考。"
+      "desc": "記錄技術探索、學習心得與生活中的思考。",
+      "hub_desc": "文學創作與思考"
     },
     "yin": {
       "title": "蔭",
@@ -76,7 +79,8 @@
     },
     "projects": {
       "title": "項目",
-      "desc": "一些我投入時間和熱情去做的事情。"
+      "desc": "一些我投入時間和熱情去做的事情。",
+      "hub_desc": "我的項目作品"
     },
     "xing": {
       "title": "行",
@@ -108,7 +112,8 @@
     },
     "articles": {
       "title": "Articles",
-      "desc": "Recording thoughts, stories, and reflections."
+      "desc": "Recording thoughts, stories, and reflections.",
+      "hub_desc": "Literature & Writing"
     },
     "yin": {
       "title": "Sanctuary",
@@ -119,7 +124,8 @@
     },
     "projects": {
       "title": "Projects",
-      "desc": "Things I spend my time and passion on."
+      "desc": "Things I spend my time and passion on.",
+      "hub_desc": "My Project Work"
     },
     "xing": {
       "title": "Travels",
