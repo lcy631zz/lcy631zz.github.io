@@ -51,7 +51,7 @@ jobs:
           done
 
       - name: Hugo Build
-        run: hugo --minify --gc
+        run: hugo --minify --gc --buildFuture --buildExpired
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

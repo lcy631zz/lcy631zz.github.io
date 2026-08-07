@@ -105,7 +105,12 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
 
         os.makedirs(dir_path, exist_ok=True)
 
-        today = date.today().isoformat()
+        pub_date = params.get('pub_date', [''])[0].strip()
+        if pub_date:
+            date_value = pub_date.replace('T', ' ') + ':00'
+        else:
+            from datetime import datetime
+            date_value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         tags = params.get('tags', [''])[0].strip()
         tags_yaml = '[]'
         if tags:
@@ -116,12 +121,12 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         if not content:
             content = '在这里写下你的内容吧！'
 
-        md = f'''+++
-title = "{safe_title}"
-date = {today}
-description = ""
-tags = {tags_yaml}
-+++
+        md = f'''---
+title: "{safe_title}"
+date: {date_value}
+description: ""
+tags: {tags_yaml}
+---
 
 {content}
 '''
@@ -186,7 +191,12 @@ tags = {tags_yaml}
 
         os.makedirs(dir_path, exist_ok=True)
 
-        today = date.today().isoformat()
+        pub_date = params.get('pub_date', [''])[0].strip()
+        if pub_date:
+            date_value = pub_date.replace('T', ' ') + ':00'
+        else:
+            from datetime import datetime
+            date_value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         desc = params.get('desc', [''])[0].strip()
         tags = params.get('tags', [''])[0].strip()
         tags_yaml = '[]'
@@ -199,14 +209,14 @@ tags = {tags_yaml}
         if not content:
             content = '在这里介绍你的项目...'
 
-        md = f'''+++
-title = "{safe_title}"
-date = {today}
-description = "{desc}"
-image = "img/project-cover.jpg"
-tags = {tags_yaml}
-link = "{link}"
-+++
+        md = f'''---
+title: "{safe_title}"
+date: {date_value}
+description: "{desc}"
+image: "img/project-cover.jpg"
+tags: {tags_yaml}
+link: "{link}"
+---
 
 {content}
 '''
@@ -466,6 +476,11 @@ link = "{link}"
             <p class="desc">写一篇散文、诗歌、随笔... 任何你想写的都可以。</p>
             <form onsubmit="return submitForm(event, 'post')">
                 <div class="form-group">
+                    <label>发布日期</label>
+                    <input type="datetime-local" name="pub_date" id="pub_date">
+                    <p class="hint">留空则使用当前时间</p>
+                </div>
+                <div class="form-group">
                     <label>文章标题 <span class="required">*</span></label>
                     <input type="text" name="title" placeholder="例如：秋天的第一片落叶" required>
                 </div>
@@ -552,6 +567,11 @@ link = "{link}"
             <p class="desc">展示你的技术项目或作品。</p>
             <form onsubmit="return submitForm(event, 'project')">
                 <div class="form-group">
+                    <label>发布日期</label>
+                    <input type="datetime-local" name="pub_date" id="pub_date_project">
+                    <p class="hint">留空则使用当前时间</p>
+                </div>
+                <div class="form-group">
                     <label>项目名称 <span class="required">*</span></label>
                     <input type="text" name="title" placeholder="例如：个人博客系统" required>
                 </div>
@@ -594,6 +614,19 @@ link = "{link}"
                 .catch(() => {});
         }
         loadStats();
+
+        // 设置默认发布时间为当前时间
+        function setDefaultDate() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset();
+            const local = new Date(now.getTime() - offset * 60000);
+            const iso = local.toISOString().slice(0, 16);
+            const d1 = document.getElementById('pub_date');
+            const d2 = document.getElementById('pub_date_project');
+            if (d1 && !d1.value) d1.value = iso;
+            if (d2 && !d2.value) d2.value = iso;
+        }
+        setDefaultDate();
 
         // 标签切换
         function switchTab(type) {
