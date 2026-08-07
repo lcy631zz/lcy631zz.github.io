@@ -1,6 +1,6 @@
 ---
 title: "示例项目"
-date: 2026-08-06
+date: 2026-08-06T18:00:00+08:00
 description: "这是我的第一个项目展示"
 image: "img/project-cover.jpg"
 tags: ["示例"]
