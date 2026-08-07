@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for security audit
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "latest"
+          extended: true
+
+      - name: Check for secrets in repo
+        run: |
+          echo "Scanning for accidentally committed secrets..."
+          # Check for common secret patterns in tracked files
+          SECRETS=$(git ls-files | xargs grep -ilE \
+            '(password|secret|api_key|apikey|private_key|access_key)\s*[:=]' \
+            --include="*.go" --include="*.toml" --include="*.yaml" --include="*.yml" \
+            --include="*.json" --include="*.html" --include="*.js" 2>/dev/null | \
+            grep -v 'node_modules' | grep -v '.git' | grep -v 'resources/_gen' | grep -v 'js/main.bundle' || true)
+          if [ -n "$SECRETS" ]; then
+            echo "::error::Potential secrets found in files:"
+            echo "$SECRETS"
+            exit 1
+          fi
+          echo "No secrets detected."
+
+      - name: Verify .gitignore
+        run: |
+          echo "Checking that sensitive files are gitignored..."
+          # Files that should NEVER be committed
+          for f in .env .env.* *.pem *.key *.p12 credentials.json secrets.yaml; do
+            if git ls-files --error-unmatch "$f" > /dev/null 2>&1; then
+              echo "::warning::File $f is tracked but should be in .gitignore"
+            fi
+          done
+
+      - name: Hugo Build
+        run: hugo --minify --gc
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
