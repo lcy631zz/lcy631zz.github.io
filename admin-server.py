@@ -195,51 +195,45 @@ tags: {tags_yaml}
         if not any(filename.lower().endswith(ext) for ext in ('.jpg', '.jpeg', '.png', '.gif', '.webp')):
             return {'error': '仅支持 jpg、png、gif、webp 格式'}
 
-        # Sanitize filename: keep only name + extension
+        # Sanitize filename
         import os as os_mod
         basename = os_mod.path.basename(filename)
-        # Remove special chars, keep extension
         name, ext = os_mod.path.splitext(basename)
         safe_name = ''.join(c for c in name if c.isalnum() or c in '-_ ') + ext.lower()
         if not safe_name or len(safe_name) < 2:
             safe_name = 'upload' + ext.lower()
 
-        # Find the boundary to extract file data
-        boundary = content_type.split('boundary=')[1].strip()
-        parts = body.split(('--' + boundary).encode())
-        file_data = None
-        for part in parts:
-            if b'filename=' in part:
-                # Find the start of file data after headers
-                idx = part.find(b'\r\n\r\n')
-                if idx >= 0:
-                    file_data = part[idx + 4:]
-                    # Remove trailing boundary marker
-                    if file_data.endswith(b'\r\n'):
-                        file_data = file_data[:-2]
-                    if file_data.endswith(b'--'):
-                        file_data = file_data[:-1]
-                    if file_data.endswith(b'\r\n'):
-                        file_data = file_data[:-2]
-                    break
-
-        if not file_data:
+        # Extract file data using proper multipart parsing
+        from email.parser import BytesParser
+        from email import policy
+        # The body is a full RFC-2354 multipart message; prepend a synthetic header
+        # so BytesParser can parse it
+        full_message = b'Content-Type: ' + content_type.encode('utf-8') + b'\r\n\r\n' + body
+        msg = BytesParser(policy=policy.default).parsebytes(full_message)
+        file_part = None
+        for part in msg.iter_parts():
+            if part.get_content_disposition() == 'form-data' and part.get_param('name', header='content-disposition') == 'file':
+                file_part = part
+                break
+        if not file_part:
+            return {'error': '读取文件内容失败'}
+        file_data = file_part.get_payload(decode=True)
+        if not file_data or len(file_data) < 10:
             return {'error': '读取文件内容失败'}
 
         # Save to static/img/
-        img_dir = os_mod.join(BLOG_DIR, 'static', 'img')
+        img_dir = os_mod.path.join(BLOG_DIR, 'static', 'img')
         os_mod.makedirs(img_dir, exist_ok=True)
-        save_path = os_mod.join(img_dir, safe_name)
-        # Avoid overwriting existing files
-        if os_mod.exists(save_path):
-            name, ext = os_mod.splitext(safe_name)
-            save_path = os_mod.join(img_dir, name + '_' + ext)
+        save_path = os_mod.path.join(img_dir, safe_name)
+        if os_mod.path.exists(save_path):
+            name, ext = os_mod.path.splitext(safe_name)
+            save_path = os_mod.path.join(img_dir, name + '_' + ext)
 
         with open(save_path, 'wb') as f:
             f.write(file_data)
 
-        web_path = 'img/' + os_mod.basename(save_path)
-        return {'success': True, 'path': web_path, 'filename': os_mod.basename(save_path)}
+        web_path = 'img/' + os_mod.path.basename(save_path)
+        return {'success': True, 'path': web_path, 'filename': os_mod.path.basename(save_path)}
 
     def _normalize_img_path(self, path):
         """Convert any path format to web path like img/filename.ext"""
