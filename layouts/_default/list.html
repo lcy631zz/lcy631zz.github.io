@@ -6,7 +6,7 @@
 <section class="page-section page-blog">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" id="pageTitle">{{ i18n "articles.title" | default "文" }}</h1>
+        <h1 class="page-title">{{ i18n "articles.title" | default "文" }}</h1>
         <p class="page-desc" id="pageDesc">{{ i18n "articles.desc" | default "记录技术探索、学习心得与生活中的思考。" }}</p>
         <div class="blog-list">
             {{ $pages := where .Site.RegularPages "Section" "blog" }}
@@ -21,7 +21,7 @@
                 </a>
                 {{ end }}
             {{ else }}
-                <div class="empty"><div class="empty-icon">📝</div><span id="emptyBlog">{{ i18n "empty_blog" | default "暂无文章" }}</span></div>
+                <div class="empty"><div class="empty-icon">📝</div>暂无文章</div>
             {{ end }}
         </div>
     </div>
@@ -31,7 +31,7 @@
 <section class="page-section page-projects">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" id="pageTitle">{{ i18n "projects.title" | default "项目" }}</h1>
+        <h1 class="page-title">{{ i18n "projects.title" | default "项目" }}</h1>
         <p class="page-desc" id="pageDesc">{{ i18n "projects.desc" | default "一些我投入时间和热情去做的事情。" }}</p>
         <div class="project-list">
             {{ $pages := where .Site.RegularPages "Section" "projects" }}
@@ -54,7 +54,7 @@
                 </a>
                 {{ end }}
             {{ else }}
-                <div class="empty"><div class="empty-icon">📁</div><span id="emptyProjects">{{ i18n "empty_projects" | default "暂无项目" }}</span></div>
+                <div class="empty"><div class="empty-icon">📁</div>暂无项目</div>
             {{ end }}
         </div>
     </div>
@@ -64,7 +64,7 @@
 <section class="page-section page-yin">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" id="pageTitle">{{ i18n "yin.title" | default "荫" }}</h1>
+        <h1 class="page-title">{{ i18n "yin.title" | default "荫" }}</h1>
         <p class="page-desc" id="pageDesc">{{ i18n "yin.desc" | default "一方宁静的角落，种下思绪，收获平和。" }}</p>
         <div class="yin-grid" id="yinGrid"></div>
         <div class="yin-quote" id="yinQuote" style="display:none">
@@ -78,7 +78,7 @@
 <section class="page-section page-xing">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" id="pageTitle" style="color:var(--orange-dark)">{{ i18n "xing.title" | default "行" }}</h1>
+        <h1 class="page-title" style="color:var(--orange-dark)">{{ i18n "xing.title" | default "行" }}</h1>
         <p class="page-desc" id="pageDesc">{{ i18n "xing.desc" | default "走过的路，看过的风景，都在这里。" }}</p>
         <div class="xing-grid" id="xingGrid"></div>
     </div>
@@ -88,7 +88,7 @@
 <section class="page-section page-zhai">
     <div class="section-inner">
         <div class="page-divider"></div>
-        <h1 class="page-title" id="pageTitle" style="color:var(--red)">{{ i18n "zhai.title" | default "摘" }}</h1>
+        <h1 class="page-title" style="color:var(--red)">{{ i18n "zhai.title" | default "摘" }}</h1>
         <p class="page-desc" id="pageDesc">{{ i18n "zhai.desc" | default "读书摘抄，记录那些打动我的文字。" }}</p>
         <div class="zhai-list" id="zhaiList"></div>
     </div>
@@ -120,7 +120,7 @@
 {{ else }}
 <section class="page-section">
     <div class="section-inner">
-        <h1 class="page-title" id="pageTitle">{{ .Title }}</h1>
+        <h1 class="page-title">{{ .Title }}</h1>
         {{ .Content }}
     </div>
 </section>

@@ -3,7 +3,7 @@
     <div class="detail-inner">
         <a href="/{{ .Section }}/" class="back-link">
             <span>←</span>
-            {{ if eq .Section "blog" }}<span id="backArticle">{{ i18n "nav.back_article" | default "返回文章" }}</span>{{ else if eq .Section "projects" }}<span id="backProject">{{ i18n "nav.back_project" | default "返回项目" }}</span>{{ else }}<span id="backDefault">{{ i18n "nav.back_default" | default "返回" }}</span>{{ end }}
+            {{ if eq .Section "blog" }}返回文章{{ else if eq .Section "projects" }}返回项目{{ else }}返回{{ end }}
         </a>
         <div class="detail-header">
             <h1 class="detail-title">{{ .Title }}</h1>
