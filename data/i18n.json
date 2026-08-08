@@ -15,11 +15,11 @@
     "about": {
       "name": "Eintv",
       "role": "一名大学生",
-      "intro_title": "自我介绍",
-      "intro_text": "你好！👋\n我是 Eintv。\n这个博客是我记录学习、分享想法、展示项目的空间。",
       "info_title": "",
       "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
-      "hub_desc": "关于我的介绍"
+      "hub_desc": "关于我的介绍",
+      "intro_title": "自我介绍",
+      "intro_text": "你好！👋\n我是 Eintv。\n这个博客是我记录学习、分享想法、展示项目的空间。"
     },
     "articles": {
       "title": "文",
@@ -28,7 +28,7 @@
     },
     "yin": {
       "title": "荫",
-      "desc": "它们受同一个内核支配。",
+      "desc": "They are governed by the same core.",
       "hub_desc": "一方宁静的角落",
       "quote": "静水流深，沧笙踏歌。",
       "quote_author": "佚名",
@@ -50,7 +50,8 @@
       "hub_desc": "走过的路，看过的风景",
       "items": []
     },
-    "footer": "用 ❤ 与代码构建 · 2026"
+    "footer": "用 ❤ 与代码构建 · 2026",
+    "zhai_daily_label": "每日一摘"
   },
   "zh-Hant": {
     "site_name": "空間",
@@ -68,11 +69,11 @@
     "about": {
       "name": "Eintv",
       "role": "一名大學生",
-      "intro_title": "自我介紹",
-      "intro_text": "你好！👋\n我是 Eintv。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
       "info_title": "",
       "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
-      "hub_desc": "關於我的介紹"
+      "hub_desc": "關於我的介紹",
+      "intro_title": "自我介紹",
+      "intro_text": "你好！👋\n我是 Eintv。\n這個部落格是我記錄學習、分享想法、展示項目的空間。"
     },
     "articles": {
       "title": "文",
@@ -103,7 +104,8 @@
       "hub_desc": "走過的路，看過的風景",
       "items": []
     },
-    "footer": "用 ❤ 與代碼構建 · 2026"
+    "footer": "用 ❤ 與代碼構建 · 2026",
+    "zhai_daily_label": "每日一摘"
   },
   "en": {
     "site_name": "Space",
@@ -121,20 +123,20 @@
     "about": {
       "name": "Eintv",
       "role": "University Student",
-      "intro_title": "Introduction",
-      "intro_text": "Hi! 👋\nI'm Eintv.\nThis blog is my space to document learning, share ideas, and showcase projects.",
       "info_title": "",
       "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
-      "hub_desc": "About Me"
+      "hub_desc": "About Me",
+      "intro_title": "Introduction",
+      "intro_text": "Hi! 👋\nI'm Eintv.\nThis blog is my space to document learning, share ideas, and showcase projects."
     },
     "articles": {
       "title": "Articles",
-      "desc": "Recording thoughts, stories, and reflections.",
+      "desc": "A space for all kinds of writing, showcasing thoughts and reflections from different periods.",
       "hub_desc": "Literature & Writing"
     },
     "yin": {
       "title": "Sanctuary",
-      "desc": "A quiet corner for peace and inspiration.",
+      "desc": "They are governed by the same core.",
       "hub_desc": "A quiet corner",
       "quote": "Still waters run deep.",
       "quote_author": "Anonymous",
@@ -156,6 +158,7 @@
       "hub_desc": "Places I've been, sights I've seen",
       "items": []
     },
-    "footer": "Built with ❤ & Code · 2026"
+    "footer": "Built with ❤ & Code · 2026",
+    "zhai_daily_label": "Daily Quote"
   }
 }

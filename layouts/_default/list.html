@@ -103,16 +103,13 @@
             <p style="color:var(--text2);font-size:1.1rem;margin-bottom:32px" id="aRole">{{ i18n "about.role" | default "一名大学生" }}</p>
         </div>
         <div style="max-width:720px;margin:0 auto">
+            {{ $info_title := i18n "about.info_title" }}
+            {{ if $info_title }}
             <div class="page-divider"></div>
-            <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aIntroTitle">{{ i18n "about.intro_title" | default "自我介绍" }}</h2>
-            <div id="aIntro" style="color:var(--text2);line-height:2;white-space:pre-line;margin-bottom:36px"></div>
-            <div class="page-divider"></div>
-                {{ $info_title := i18n "about.info_title" }}
-                {{ if $info_title }}
             <h2 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:16px;color:var(--red)" id="aInfoTitle">{{ i18n "about.info_title" | default "基本信息" }}</h2>
             <div id="aInfo" style="color:var(--text2);line-height:2;white-space:pre-line"></div>
             <div class="page-divider" style="margin-top:36px"></div>
-                {{ end }}
+            {{ end }}
             <div class="about-content detail-body">
                 {{ .Content }}
             </div>

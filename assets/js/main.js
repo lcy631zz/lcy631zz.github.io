@@ -106,6 +106,7 @@ function render() {
     if (page === 'zhai') {
         setText('pageDesc', d.zhai?.desc);
         renderZhaiList();
+        updateDailyQuote();
     }
 
     /* Language switcher button states */
@@ -190,6 +191,41 @@ function renderZhaiList() {
         zl.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
     });
 }
+
+/* Daily quote rotation (updates at noon each day) */
+function getDailyQuoteIndex() {
+    if (!window.ZHAI || !window.ZHAI.items || !window.ZHAI.items.length) return -1;
+    const dayCount = Math.floor(Date.now() / 86400000);
+    return ((dayCount % window.ZHAI.items.length) + window.ZHAI.items.length) % window.ZHAI.items.length;
+}
+
+function updateDailyQuote() {
+    const dq = $('zhaiDailyQuote');
+    if (!dq) return;
+    const idx = getDailyQuoteIndex();
+    if (idx < 0) { dq.style.display = 'none'; return; }
+    const lastIdx = parseInt(localStorage.getItem('zhai-daily-idx') || '-1');
+    const lastLang = localStorage.getItem('zhai-daily-lang') || '';
+    if (idx !== lastIdx || lastLang !== lang || !dq.dataset.loaded) {
+        localStorage.setItem('zhai-daily-idx', idx);
+        localStorage.setItem('zhai-daily-lang', lang);
+        const z = window.ZHAI.items[idx];
+        const textEl = $('zdqText');
+        const sourceEl = $('zdqSource');
+        const dateEl = $('zdqDate');
+        if (textEl) textEl.textContent = '“' + z.quote + '”';
+        if (sourceEl) sourceEl.textContent = z.source ? '—— ' + z.source + (z.note ? '，' + z.note : '') : '';
+        if (dateEl) {
+            const d = new Date();
+            dateEl.textContent = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+        }
+        dq.dataset.loaded = '1';
+    }
+    const labelEl = $('zdqLabel');
+    if (labelEl) labelEl.textContent = DATA?.[lang]?.zhai_daily_label || (lang === 'en' ? 'Daily Quote' : '每日一摘');
+}
+
+setInterval(() => { if (getPage() === 'zhai') updateDailyQuote(); }, 60000);
 
 /* Open a zhai quote in modal */
 function openZhaiModal(i) {
