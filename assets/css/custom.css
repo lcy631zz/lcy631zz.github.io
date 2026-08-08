@@ -299,6 +299,8 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .page-zhai .zhai-poetry-title{font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--purple-dark);line-height:1.6;margin-bottom:12px;letter-spacing:.04em}
 .page-zhai .zhai-poetry-body{font-family:var(--serif);font-size:1.15rem;line-height:2.2;color:var(--text);letter-spacing:.06em}
 .page-zhai .zhai-poetry-line{margin:0;padding:2px 0}
+.page-zhai .zhai-poetry-stanza{margin-bottom:18px}
+.page-zhai .zhai-poetry-stanza:last-child{margin-bottom:0}
 .page-zhai .zhai-poetry-source{color:var(--purple);font-size:.95rem;font-style:normal;font-weight:500;margin-top:14px;padding-top:12px;border-top:1px solid rgba(123,104,174,.1);display:inline-block}
 
 /* Projects list - 灰色 */
