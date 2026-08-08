@@ -115,6 +115,7 @@ function render() {
     /* Zhai section page */
     if (page === 'zhai') {
         setText('pageDesc', d.zhai?.desc);
+        renderZhaiList();
     }
 
     /* Footer (all pages) */
@@ -174,6 +175,53 @@ function renderXingGrid() {
     requestAnimationFrame(() => {
         xg.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
     });
+}
+
+/* Render zhai quote list */
+function renderZhaiList() {
+    const zl = $('zhaiList');
+    if (!zl) return;
+    if (!window.ZHAI || !window.ZHAI.items || !window.ZHAI.items.length) {
+        zl.innerHTML = '<div class="empty"><div class="empty-icon">🍒</div>' + na() + '</div>';
+        return;
+    }
+    zl.innerHTML = window.ZHAI.items.map((z, i) => {
+        const quote = (z.quote || '').replace(/'/g, "\\'");
+        const source = z.source ? '<cite>—— ' + z.source + '</cite>' : '';
+        let html = '<div class="zhai-item fi" onclick="openZhaiModal(' + i + ')">';
+        if (z.img) {
+            const img = z.img.replace(/'/g, "\\'");
+            html += '<img class="zhai-img" src="' + img + '" alt="' + (z.source || '') + '" onclick="event.stopPropagation();openLightbox(\'' + img + '\',\'' + (z.source || '') + '\')">';
+        }
+        html += '<div class="zhai-quote">"“' + quote + '”</div>' +
+            source +
+            (z.note ? '<div class="zhai-note">' + z.note + '</div>' : '') +
+            '</div>';
+        return html;
+    }).join('');
+    requestAnimationFrame(() => {
+        zl.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
+    });
+}
+
+/* Open a zhai quote in modal */
+function openZhaiModal(i) {
+    const z = window.ZHAI.items[i];
+    if (!z) return;
+    const quote = (z.quote || '').replace(/'/g, "\\'");
+    const source = z.source || '';
+    const note = z.note || '';
+    document.getElementById('mTitle').textContent = source || (lang === 'en' ? 'Excerpt' : '摘抄');
+    let body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">“' + quote + '”</blockquote>';
+    if (z.img) {
+        const img = z.img.replace(/'/g, "\\'");
+        body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + img + '\',\'' + source + '\')"></div>';
+    }
+    if (note) body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px">' + note + '</p>';
+    document.getElementById('mMeta').innerHTML = '';
+    document.getElementById('mBody').innerHTML = body;
+    document.getElementById('artModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
 }
 
 /* Highlight active nav link */
