@@ -87,3 +87,4 @@ ehthumbs.db
 .githooks/
 __pycache__/
 *.pyc
+*Zone.Identifier
