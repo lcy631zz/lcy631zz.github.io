@@ -173,12 +173,39 @@ tags: {tags_yaml}
 
         return {'success': True, 'file': filepath, 'title': safe_title}
 
+    def _normalize_img_path(self, path):
+        """Convert any path format to web path like img/filename.ext"""
+        # Already a clean web path
+        if path.startswith('img/') or path.startswith('/img/'):
+            return path.lstrip('/')
+        # WSL path: \\wsl.localhost\Ubuntu\home\fanze\my-website\static\img\xxx.jpg
+        if 'wsl.localhost' in path or 'static' in path:
+            import re
+            m = re.search(r'img[/\\]([^\"\\]+)', path)
+            if m:
+                return 'img/' + m.group(1)
+        # Windows absolute path: C:\Users\...\static\img\xxx.jpg
+        if re.match(r'^[A-Za-z]:\\', path):
+            import re
+            m = re.search(r'img[/\\]([^\"\\]+)', path)
+            if m:
+                return 'img/' + m.group(1)
+        # If it starts with static/, strip it
+        if path.startswith('static/'):
+            return path[7:]
+        # If it starts with static\, strip it
+        if path.startswith('static\\'):
+            return path[7:]
+        return path
+
     def add_photo(self, params):
         img_path = params.get('img_path', [''])[0].strip()
         caption = params.get('caption', [''])[0].strip()
 
         if not img_path:
             return {'error': '图片路径不能为空'}
+
+        img_path = self._normalize_img_path(img_path)
 
         data_file = os.path.join(BLOG_DIR, 'data', 'yin.json')
         with open(data_file, 'r', encoding='utf-8') as f:
@@ -201,6 +228,8 @@ tags: {tags_yaml}
 
         if not img_path:
             return {'error': '图片路径不能为空'}
+
+        img_path = self._normalize_img_path(img_path)
 
         data_file = os.path.join(BLOG_DIR, 'data', 'xing.json')
         with open(data_file, 'r', encoding='utf-8') as f:
