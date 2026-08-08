@@ -25,7 +25,7 @@
                 </a>
                 {{ end }}
             {{ else }}
-                <div class="empty"><div class="empty-icon">📁</div>暂无项目</div>
+                <div class="empty"><div class="empty-icon">📁</div><span id="emptyProjects">{{ i18n "empty_projects" | default "暂无项目" }}</span></div>
             {{ end }}
         </div>
     </div>

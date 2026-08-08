@@ -104,16 +104,21 @@ function render() {
 
     /* Blog section page */
     if (page === 'blog') {
+        setText('pageTitle', d.articles?.title);
         setText('pageDesc', d.articles?.desc);
+        setEmptyStates('blog');
     }
 
     /* Projects section page */
     if (page === 'projects') {
+        setText('pageTitle', d.projects?.title);
         setText('pageDesc', d.projects?.desc);
+        setEmptyStates('projects');
     }
 
     /* Yin section page */
     if (page === 'yin') {
+        setText('pageTitle', d.yin?.title);
         setText('pageDesc', d.yin?.desc);
         const yqt = $('yQuoteText'), yqa = $('yQuoteAuthor'), yq = $('yinQuote');
         if (yqt) yqt.textContent = d.yin?.quote || '';
@@ -124,18 +129,28 @@ function render() {
 
     /* Xing section page */
     if (page === 'xing') {
+        setText('pageTitle', d.xing?.title);
         setText('pageDesc', d.xing?.desc);
         renderXingGrid();
     }
 
     /* Zhai section page */
     if (page === 'zhai') {
+        setText('pageTitle', d.zhai?.title);
         setText('pageDesc', d.zhai?.desc);
         renderZhaiList();
     }
 
     /* Footer (all pages) */
     setText('footer', d?.footer);
+
+    /* Nav labels (all pages) */
+    setNavLabels();
+
+    /* Back-link on single pages */
+    if (page === 'blog-single' || page === 'project-single') {
+        setBackLink(page);
+    }
 
     /* Animate .fi elements on all pages */
     requestAnimationFrame(() => {
@@ -290,6 +305,29 @@ function openZhaiModal(i) {
     document.getElementById('mBody').innerHTML = body;
     document.getElementById('artModal').classList.add('show');
     document.body.style.overflow = 'hidden';
+}
+
+/* Update nav link text for current language */
+function setNavLabels() {
+    setText('navAbout', t('nav.about'));
+    setText('navBlog', t('nav.blog'));
+    setText('navZhai', t('nav.zhai'));
+    setText('navYin', t('nav.yin'));
+    setText('navXing', t('nav.xing'));
+    setText('navProjects', t('nav.projects'));
+}
+
+/* Update back-link text for current page */
+function setBackLink(page) {
+    if (page === 'blog-single') setText('backArticle', t('nav.back_article'));
+    else if (page === 'project-single') setText('backProject', t('nav.back_project'));
+    else setText('backDefault', t('nav.back_default'));
+}
+
+/* Update empty state texts */
+function setEmptyStates(page) {
+    if (page === 'blog') setText('emptyBlog', t('empty_blog'));
+    else if (page === 'projects') setText('emptyProjects', t('empty_projects'));
 }
 
 /* Highlight active nav link */
