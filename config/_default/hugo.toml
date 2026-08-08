@@ -40,3 +40,6 @@ summaryLength = 0
     enableDNT = true
   [privacy.youTube]
     privacyEnhanced = true
+
+[markup.goldmark.renderer]
+  unsafe = true
