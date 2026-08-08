@@ -34,7 +34,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/api/post':
             content_len = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_len).decode('utf-8')
-            params = parse_qs(body)
+            params = parse_qs(body, keep_blank_values=True)
 
             title = params.get('title', [''])[0].strip()
             content_type = params.get('type', [''])[0]
@@ -67,7 +67,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path == '/api/update':
             content_len = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_len).decode('utf-8')
-            params = parse_qs(body)
+            params = parse_qs(body, keep_blank_values=True)
 
             ctype = params.get('type', [''])[0]
             cid = params.get('id', [''])[0]
@@ -115,7 +115,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith('/api/content'):
             content_len = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_len).decode('utf-8')
-            params = parse_qs(body)
+            params = parse_qs(body, keep_blank_values=True)
             self.send_json(self.delete_content(params))
         else:
             self.send_response(404)
@@ -558,6 +558,243 @@ link: "{link}"
         for i, item in enumerate(data.get('items', [])):
             items.append({'id': str(i), 'title': item.get('source', item.get('quote', '')[:30]), 'quote': item.get('quote', ''), 'source': item.get('source', ''), 'note': item.get('note', ''), 'index': i})
         return {'items': items}
+
+    # ── 获取单条内容 ──
+    def get_content(self, ctype, cid):
+        try:
+            if ctype == 'post':
+                return self._get_post(cid)
+            elif ctype == 'photo':
+                return self._get_photo(cid)
+            elif ctype == 'travel':
+                return self._get_travel(cid)
+            elif ctype == 'project':
+                return self._get_project(cid)
+            elif ctype == 'zhai':
+                return self._get_zhai(cid)
+            else:
+                return {'error': '未知类型'}
+        except Exception as e:
+            return {'error': str(e)}
+
+    def _parse_frontmatter(self, filepath):
+        """Parse Hugo frontmatter file, return (meta_dict, body_string)"""
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+        parts = content.split('---', 2)
+        if len(parts) < 3:
+            return {}, content
+        _, frontmatter, body = parts
+        meta = {}
+        for line in frontmatter.strip().splitlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if ':' in line:
+                key, val = line.split(':', 1)
+                key = key.strip()
+                val = val.strip().strip('"').strip("'")
+                if val.startswith('[') and val.endswith(']'):
+                    try:
+                        val = json.loads(val)
+                        if isinstance(val, list):
+                            val = ' '.join(str(v) for v in val)
+                    except:
+                        pass
+                meta[key] = val
+        return meta, body.strip()
+
+    def _write_frontmatter(self, filepath, meta, body):
+        """Write Hugo frontmatter file from meta dict and body string"""
+        lines = ['---']
+        for key in ['title', 'date', 'period', 'description', 'tags', 'link', 'image']:
+            if key not in meta:
+                continue
+            val = meta[key]
+            if key == 'description':
+                lines.append(f'description: "{val}"')
+            elif key == 'tags' and isinstance(val, str):
+                tag_list = [t.strip() for t in val.replace(',', ' ').split() if t.strip()]
+                val = json.dumps(tag_list, ensure_ascii=False)
+                lines.append(f'{key}: {val}')
+            elif val or key in ('title', 'date'):
+                if isinstance(val, str) and key not in ('tags',):
+                    lines.append(f'{key}: "{val}"')
+                else:
+                    lines.append(f'{key}: {val}')
+        lines.append('---')
+        lines.append('')
+        lines.append(body)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(lines))
+
+    def _get_post(self, cid):
+        filepath = os.path.join(BLOG_DIR, 'content', 'blog', cid, 'index.zh-Hans.md')
+        if not os.path.isfile(filepath):
+            return {'error': f'文章「{cid}」不存在'}
+        meta, body = self._parse_frontmatter(filepath)
+        return {
+            'id': cid, 'type': 'post',
+            'title': meta.get('title', cid),
+            'date': meta.get('date', ''),
+            'period': meta.get('period', ''),
+            'tags': meta.get('tags', ''),
+            'content': body,
+            'path': filepath,
+        }
+
+    def _get_project(self, cid):
+        filepath = os.path.join(BLOG_DIR, 'content', 'projects', cid, 'index.zh-Hans.md')
+        if not os.path.isfile(filepath):
+            return {'error': f'项目「{cid}」不存在'}
+        meta, body = self._parse_frontmatter(filepath)
+        return {
+            'id': cid, 'type': 'project',
+            'title': meta.get('title', cid),
+            'date': meta.get('date', ''),
+            'period': meta.get('period', ''),
+            'description': meta.get('description', ''),
+            'image': meta.get('image', ''),
+            'tags': meta.get('tags', ''),
+            'link': meta.get('link', ''),
+            'content': body,
+            'path': filepath,
+        }
+
+    def _get_photo(self, cid):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'yin.json'), encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '照片不存在'}
+        item = data['items'][idx]
+        return {'id': cid, 'type': 'photo', 'img': item.get('img', ''), 'caption': item.get('caption', ''), 'index': idx}
+
+    def _get_travel(self, cid):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'xing.json'), encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '旅行不存在'}
+        item = data['items'][idx]
+        return {'id': cid, 'type': 'travel', 'img': item.get('img', ''), 'place': item.get('place', ''), 'caption': item.get('caption', ''), 'index': idx}
+
+    def _get_zhai(self, cid):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'zhai.json'), encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '摘抄不存在'}
+        item = data['items'][idx]
+        return {'id': cid, 'type': 'zhai', 'quote': item.get('quote', ''), 'source': item.get('source', ''), 'note': item.get('note', ''), 'img': item.get('img', ''), 'index': idx}
+
+    # ── 更新内容 ──
+    def _update_post(self, cid, params):
+        filepath = os.path.join(BLOG_DIR, 'content', 'blog', cid, 'index.zh-Hans.md')
+        if not os.path.isfile(filepath):
+            return {'error': f'文章「{cid}」不存在'}
+        old_meta, body = self._parse_frontmatter(filepath)
+        title = params.get('title', [''])[0].strip() or old_meta.get('title', cid)
+        pub_date = params.get('pub_date', [''])[0].strip() or old_meta.get('date', date.today().isoformat())
+        period = params.get('period', [''])[0].strip()
+        tags = params.get('tags', [''])[0].strip()
+        content = params.get('content', [''])[0].strip() or body
+        meta = {
+            'title': title,
+            'date': pub_date,
+            'period': period if period is not None else old_meta.get('period', ''),
+            'tags': tags,
+            'description': old_meta.get('description', ''),
+        }
+        # Only update period if user provided a value (allow empty to clear)
+        if 'period' in params and params['period'][0].strip() != '':
+            meta['period'] = period
+        else:
+            meta['period'] = old_meta.get('period', '')
+        self._write_frontmatter(filepath, meta, content)
+        return {'success': True, 'message': f'文章「{title}」已更新'}
+
+    def _update_project(self, cid, params):
+        filepath = os.path.join(BLOG_DIR, 'content', 'projects', cid, 'index.zh-Hans.md')
+        if not os.path.isfile(filepath):
+            return {'error': f'项目「{cid}」不存在'}
+        old_meta, body = self._parse_frontmatter(filepath)
+        title = params.get('title', [''])[0].strip() or old_meta.get('title', cid)
+        pub_date = params.get('pub_date', [''])[0].strip() or old_meta.get('date', date.today().isoformat())
+        period = params.get('period', [''])[0].strip()
+        desc = params.get('desc', [''])[0].strip()
+        tags = params.get('tags', [''])[0].strip()
+        link = params.get('link', [''])[0].strip()
+        content = params.get('content', [''])[0].strip() or body
+        meta = {
+            'title': title,
+            'date': pub_date,
+            'period': period if period != '' else old_meta.get('period', ''),
+            'description': desc if desc != '' else old_meta.get('description', ''),
+            'image': old_meta.get('image', ''),
+            'tags': tags,
+            'link': link if link != '' else old_meta.get('link', ''),
+        }
+        self._write_frontmatter(filepath, meta, content)
+        return {'success': True, 'message': f'项目「{title}」已更新'}
+
+    def _update_photo(self, cid, params):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'yin.json'), encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '照片不存在'}
+        img_path = params.get('img_path', [''])[0].strip()
+        caption = params.get('caption', [''])[0].strip()
+        if img_path:
+            data['items'][idx]['img'] = self._normalize_img_path(img_path)
+        if 'caption' in params:
+            if caption:
+                data['items'][idx]['caption'] = caption
+            else:
+                data['items'][idx].pop('caption', None)
+        with open(os.path.join(BLOG_DIR, 'data', 'yin.json'), 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return {'success': True, 'message': '照片已更新'}
+
+    def _update_travel(self, cid, params):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'xing.json'), encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '旅行不存在'}
+        img_path = params.get('img_path', [''])[0].strip()
+        place = params.get('place', [''])[0].strip()
+        caption = params.get('caption', [''])[0].strip()
+        if img_path:
+            data['items'][idx]['img'] = self._normalize_img_path(img_path)
+        if 'place' in params:
+            if place:
+                data['items'][idx]['place'] = place
+            else:
+                data['items'][idx].pop('place', None)
+        if 'caption' in params:
+            if caption:
+                data['items'][idx]['caption'] = caption
+            else:
+                data['items'][idx].pop('caption', None)
+        with open(os.path.join(BLOG_DIR, 'data', 'xing.json'), 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return {'success': True, 'message': '旅行已更新'}
+
+    def _update_zhai(self, cid, params):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'zhai.json'), encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '摘抄不存在'}
+        quote = params.get('quote', [''])[0].strip()
+        source = params.get('source', [''])[0].strip()
+        note = params.get('note', [''])[0].strip()
+        img = params.get('img', [''])[0].strip()
+        for key, val in [('quote', quote), ('source', source), ('note', note), ('img', img)]:
+            if key in params:
+                if val:
+                    data['items'][idx][key] = val
+                else:
+                    data['items'][idx].pop(key, None)
+        with open(os.path.join(BLOG_DIR, 'data', 'zhai.json'), 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return {'success': True, 'message': '摘抄已更新'}
 
     def delete_content(self, params):
         qs = parse_qs(urlparse(self.path).query)
@@ -1042,6 +1279,7 @@ link: "{link}"
             <h2>写新文章</h2>
             <p class="desc">写一篇散文、诗歌、随笔... 任何你想写的都可以。</p>
             <form onsubmit="return submitForm(event, 'post')">
+                <input type="hidden" name="edit_id" value="">
                 <div class="form-group">
                     <label>日期</label>
                     <input type="date" name="pub_date" id="pub_date">
@@ -1088,6 +1326,7 @@ link: "{link}"
                 </ul>
             </div>
             <form onsubmit="return submitForm(event, 'photo')">
+                <input type="hidden" name="edit_id" value="">
                 <div class="form-group">
                     <label>上传图片</label>
                     <input type="file" name="upload_file" id="photoUpload" accept="image/*" style="padding:8px">
@@ -1120,6 +1359,7 @@ link: "{link}"
                 </ul>
             </div>
             <form onsubmit="return submitForm(event, 'travel')">
+                <input type="hidden" name="edit_id" value="">
                 <div class="form-group">
                     <label>上传图片</label>
                     <input type="file" name="upload_file" id="travelUpload" accept="image/*" style="padding:8px">
@@ -1148,6 +1388,7 @@ link: "{link}"
             <h2>添加新项目</h2>
             <p class="desc">展示你的技术项目或作品。</p>
             <form onsubmit="return submitForm(event, 'project')">
+                <input type="hidden" name="edit_id" value="">
                 <div class="form-group">
                     <label>日期</label>
                     <input type="date" name="pub_date" id="pub_date_project">
@@ -1191,6 +1432,7 @@ link: "{link}"
             <h2>添加读书摘抄</h2>
             <p class="desc">记录书中打动你的文字。</p>
             <form onsubmit="return submitForm(event, 'zhai')">
+                <input type="hidden" name="edit_id" value="">
                 <div class="form-group">
                     <label>摘抄内容 <span class="required">*</span></label>
                     <textarea name="quote" placeholder="例如：人间有味是清欢。" required></textarea>
@@ -1219,11 +1461,11 @@ link: "{link}"
             <h2>管理已发布内容</h2>
             <p class="desc">查看、编辑或删除你已经发布的内容。</p>
             <div class="tabs" style="margin-bottom:16px">
-                <button class="tab-btn active" onclick="manageTab='post';loadManageList()">📝 文章</button>
-                <button class="tab-btn" onclick="manageTab='photo';loadManageList()">🖼️ 照片</button>
-                <button class="tab-btn" onclick="manageTab='travel';loadManageList()">✈️ 旅行</button>
-                <button class="tab-btn" onclick="manageTab='project';loadManageList()">📁 项目</button>
-                <button class="tab-btn" onclick="manageTab='zhai';loadManageList()">📖 摘抄</button>
+                <button class="tab-btn active" onclick="if(editMode) cancelEdit();manageTab='post';loadManageList()">📝 文章</button>
+                <button class="tab-btn" onclick="if(editMode) cancelEdit();manageTab='photo';loadManageList()">🖼️ 照片</button>
+                <button class="tab-btn" onclick="if(editMode) cancelEdit();manageTab='travel';loadManageList()">✈️ 旅行</button>
+                <button class="tab-btn" onclick="if(editMode) cancelEdit();manageTab='project';loadManageList()">📁 项目</button>
+                <button class="tab-btn" onclick="if(editMode) cancelEdit();manageTab='zhai';loadManageList()">📖 摘抄</button>
             </div>
             <div id="manageList" style="min-height:100px">
                 <p style="color:#8E8EA0;text-align:center;padding:40px">加载中...</p>
@@ -1299,6 +1541,7 @@ link: "{link}"
         // 内容管理
         let manageTab = 'post';
         const manageTypeNames = {post: '文章', photo: '照片', travel: '旅行', project: '项目', zhai: '摘抄'};
+        let editMode = null; // {type, id} or null
 
         function loadManageList() {
             const listEl = document.getElementById('manageList');
@@ -1340,10 +1583,133 @@ link: "{link}"
         }
 
         function editItem(id) {
-            // 根据当前类型切换到对应标签页
             const tabMap = {post: 'post', photo: 'photo', travel: 'travel', project: 'project', zhai: 'zhai'};
-            switchTab(tabMap[manageTab] || 'post');
-            showMsg('请手动修改内容后重新提交（编辑功能开发中...）', 'success');
+            const type = tabMap[manageTab] || 'post';
+            switchTab(type);
+            const statusEl = document.getElementById('msg');
+            statusEl.className = 'msg';
+            statusEl.style.display = 'none';
+            statusEl.textContent = '加载中...';
+            statusEl.style.color = '#8E8EA0';
+            statusEl.style.display = 'block';
+
+            fetch('/api/content?type=' + manageTab + '&id=' + encodeURIComponent(id))
+                .then(r => r.json())
+                .then(data => {
+                    statusEl.style.display = 'none';
+                    if (data.error) {
+                        showMsg('加载失败: ' + data.error, 'error');
+                        return;
+                    }
+                    editMode = {type: manageTab, id: id};
+                    populateForm(type, data);
+                    updateFormTitle(type, data);
+                })
+                .catch(err => {
+                    statusEl.style.display = 'none';
+                    showMsg('加载失败: ' + err.message, 'error');
+                });
+        }
+
+        function populateForm(type, data) {
+            const form = document.getElementById('form-' + type);
+            const editIdInput = form.querySelector('input[name="edit_id"]');
+            if (editIdInput) editIdInput.value = data.id || '';
+
+            if (type === 'post' || type === 'project') {
+                const dateInput = form.querySelector('input[name="pub_date"]');
+                if (dateInput) dateInput.value = data.date || '';
+                const periodInput = form.querySelector('input[name="period"]');
+                if (periodInput) periodInput.value = data.period || '';
+                const titleInput = form.querySelector('input[name="title"]');
+                if (titleInput) titleInput.value = data.title || '';
+                const tagsInput = form.querySelector('input[name="tags"]');
+                if (tagsInput) tagsInput.value = data.tags || '';
+                const contentTextarea = form.querySelector('textarea[name="content"]');
+                if (contentTextarea) contentTextarea.value = data.content || '';
+                if (type === 'project') {
+                    const descInput = form.querySelector('input[name="desc"]');
+                    if (descInput) descInput.value = data.description || '';
+                    const linkInput = form.querySelector('input[name="link"]');
+                    if (linkInput) linkInput.value = data.link || '';
+                }
+            } else if (type === 'photo' || type === 'travel') {
+                const imgInput = form.querySelector('input[name="img_path"]');
+                if (imgInput) imgInput.value = data.img || '';
+                const captionInput = form.querySelector('input[name="caption"]');
+                if (captionInput) captionInput.value = data.caption || '';
+                if (type === 'travel') {
+                    const placeInput = form.querySelector('input[name="place"]');
+                    if (placeInput) placeInput.value = data.place || '';
+                }
+            } else if (type === 'zhai') {
+                const quoteTextarea = form.querySelector('textarea[name="quote"]');
+                if (quoteTextarea) quoteTextarea.value = data.quote || '';
+                const sourceInput = form.querySelector('input[name="source"]');
+                if (sourceInput) sourceInput.value = data.source || '';
+                const noteInput = form.querySelector('input[name="note"]');
+                if (noteInput) noteInput.value = data.note || '';
+                const imgInput = form.querySelector('input[name="img"]');
+                if (imgInput) imgInput.value = data.img || '';
+            }
+        }
+
+        function updateFormTitle(type, data) {
+            const form = document.getElementById('form-' + type);
+            const h2 = form.querySelector('h2');
+            const desc = form.querySelector('.desc');
+            const btn = form.querySelector('.btn-submit');
+            const typeNames = {post: '文章', photo: '照片', travel: '旅行', project: '项目', zhai: '摘抄'};
+            const name = typeNames[type] || type;
+
+            // Store original text for cancel
+            if (!form.dataset.originalH2) {
+                form.dataset.originalH2 = h2.textContent;
+                form.dataset.originalDesc = desc ? desc.textContent : '';
+                form.dataset.originalBtn = btn.textContent;
+            }
+
+            h2.textContent = '编辑' + name;
+            if (desc) desc.textContent = '修改这条' + name + '的内容。';
+            btn.textContent = '💾 保存修改';
+            btn.style.background = '#3D8B6E';
+
+            // Add cancel button if not exists
+            if (!form.querySelector('.btn-cancel-edit')) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.type = 'button';
+                cancelBtn.className = 'btn-cancel-edit';
+                cancelBtn.textContent = '取消编辑';
+                cancelBtn.style.cssText = 'padding:12px 24px;border:1px solid #ddd;background:white;border-radius:12px;cursor:pointer;font-size:1rem;margin-left:8px;color:#8E8EA0';
+                cancelBtn.onclick = cancelEdit;
+                btn.parentNode.insertBefore(cancelBtn, btn.nextSibling);
+            }
+        }
+
+        function cancelEdit() {
+            editMode = null;
+            // Reset all forms
+            document.querySelectorAll('.form-card').forEach(form => {
+                form.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(el => {
+                    if (el.type === 'hidden' && el.name === 'edit_id') return;
+                    el.value = '';
+                });
+                const h2 = form.querySelector('h2');
+                const desc = form.querySelector('.desc');
+                const btn = form.querySelector('.btn-submit');
+                if (form.dataset.originalH2) {
+                    h2.textContent = form.dataset.originalH2;
+                    if (desc) desc.textContent = form.dataset.originalDesc;
+                    btn.textContent = form.dataset.originalBtn;
+                    btn.style.background = '';
+                    const cancelBtn = form.querySelector('.btn-cancel-edit');
+                    if (cancelBtn) cancelBtn.remove();
+                    delete form.dataset.originalH2;
+                    delete form.dataset.originalDesc;
+                    delete form.dataset.originalBtn;
+                }
+            });
+            setDefaultDate();
         }
 
         function deleteItem(id) {
@@ -1508,6 +1874,7 @@ link: "{link}"
 
         // 标签切换
         function switchTab(type) {
+            if (editMode) cancelEdit();
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.form-card').forEach(f => f.classList.remove('active'));
             event.target.classList.add('active');
@@ -1529,12 +1896,15 @@ link: "{link}"
                 params.append(key, value);
             }
 
+            // Determine if we're editing
+            const isEdit = editMode && editMode.type === type;
+            const apiUrl = isEdit ? '/api/update' : '/api/post';
+
             btn.disabled = true;
-            btn.textContent = '提交中...';
             msg.className = 'msg';
             msg.style.display = 'none';
 
-            fetch('/api/post', {
+            fetch(apiUrl, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: params.toString()
@@ -1546,10 +1916,15 @@ link: "{link}"
                     msg.textContent = data.error;
                 } else {
                     msg.className = 'msg success';
-                    const titles = {post: '文章', photo: '照片', travel: '旅行', project: '项目'};
-                    msg.textContent = data.success ? '添加成功！' : (data.error || '完成');
-                    form.reset();
+                    if (isEdit) {
+                        msg.textContent = data.message || '更新成功！';
+                        cancelEdit();
+                    } else {
+                        msg.textContent = data.success ? '添加成功！' : (data.error || '完成');
+                        form.reset();
+                    }
                     loadStats();
+                    loadManageList();
                 }
             })
             .catch(err => {
@@ -1558,8 +1933,15 @@ link: "{link}"
             })
             .finally(() => {
                 btn.disabled = false;
-                const labels = {post: '发布文章', photo: '添加照片', travel: '添加旅行', project: '添加项目'};
+                const labels = {
+                    post: isEdit ? '保存修改' : '发布文章',
+                    photo: isEdit ? '保存修改' : '添加照片',
+                    travel: isEdit ? '保存修改' : '添加旅行',
+                    project: isEdit ? '保存修改' : '添加项目',
+                    zhai: isEdit ? '保存修改' : '添加摘抄'
+                };
                 btn.textContent = labels[type];
+                if (!isEdit) btn.style.background = '';
             });
 
             return false;
