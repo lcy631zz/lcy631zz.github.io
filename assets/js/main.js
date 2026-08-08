@@ -233,8 +233,11 @@ function renderZhaiList() {
             if (source) html += '<div class="zhai-poetry-source">' + source + '</div>';
             if (z.note) html += '<div class="zhai-note">' + z.note + '</div>';
         } else {
-            html += '<div class="zhai-quote">"' + quote + '"</div>' +
-source +
+            const maxLen = 120;
+            const isLong = quote.length > maxLen;
+            const displayQuote = isLong ? sqEscape(z.quote.substring(0, maxLen).trim()) + '…' : quote;
+            html += '<div class="zhai-quote' + (isLong ? ' zhai-quote-truncated' : '') + '">"' + displayQuote + '"</div>' +
+                source +
                 (z.note ? '<div class="zhai-note">' + z.note + '</div>' : '');
         }
         html += '</div>';
