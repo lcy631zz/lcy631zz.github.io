@@ -5,6 +5,9 @@
     },
     {
       "img": "img/mkm2.jpg"
+    },
+    {
+      "img": "\"\\\\wsl.localhost\\Ubuntu\\home\\fanze\\my-website\\static\\img\\cy.jpg\""
     }
   ]
 }
