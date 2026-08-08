@@ -195,15 +195,12 @@ function renderZhaiList() {
             html += '<img class="zhai-img" src="' + img + '" alt="' + (z.source || '') + '" onclick="event.stopPropagation();openLightbox(\'' + img + '\',\'' + (z.source || '') + '\')">';
         }
         if (isPoetry) {
-            // Poetry layout: centered, larger serif font, title line + body
-            const lines = quote.split(/[，。！？、；：]/).filter(l => l.trim());
-            const titleLine = lines.length > 1 ? lines[0] : '';
-            const bodyLines = lines.length > 1 ? lines.slice(1) : lines;
-            html += '<div class="zhai-poetry-header">';
-            if (titleLine) html += '<div class="zhai-poetry-title">“' + titleLine + '”</div>';
+            // Poetry: show each stanza (split by \n) as a separate line
+            const stanzas = quote.split('\n').filter(s => s.trim());
             html += '<div class="zhai-poetry-body">';
-            bodyLines.forEach(l => { html += '<div class="zhai-poetry-line">' + l + '</div>'; });
-            html += '</div>';
+            stanzas.forEach((s, si) => {
+                html += '<div class="zhai-poetry-line" style="margin-bottom:' + (si < stanzas.length - 1 ? '18px' : '0') + '">' + s.trim() + '</div>';
+            });
             html += '</div>';
             if (source) html += '<div class="zhai-poetry-source">' + source + '</div>';
             if (z.note) html += '<div class="zhai-note">' + z.note + '</div>';
@@ -230,15 +227,10 @@ function openZhaiModal(i) {
     document.getElementById('mTitle').textContent = source || (lang === 'en' ? 'Excerpt' : '摘抄');
     if (z.poetry) {
         const stanzas = quote.split('\n').filter(s => s.trim());
-        const titleLine = stanzas[0].split(/[，。！？、；：]/)[0].trim();
         let body = '<div style="text-align:center;padding:20px 0">';
-        if (titleLine) body += '<div style="font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--purple-dark);margin-bottom:16px;letter-spacing:.06em">' + titleLine + '</div>';
-        body += '<div style="font-family:var(--serif);font-size:1.25rem;line-height:2.4;color:var(--text);letter-spacing:.08em">';
+        body += '<div class="zhai-poetry-body">';
         stanzas.forEach(function(stanza, si) {
-            body += '<div class="zhai-poetry-stanza" style="margin-bottom:' + (si < stanzas.length - 1 ? '18px' : '0') + '">';
-            const lines = stanza.split(/[，。！？、；：]/).filter(l => l.trim());
-            lines.forEach(function(l) { body += '<div style="margin:0;padding:3px 0">' + l + '</div>'; });
-            body += '</div>';
+            body += '<div class="zhai-poetry-line" style="margin-bottom:' + (si < stanzas.length - 1 ? '18px' : '0') + '">' + stanza.trim() + '</div>';
         });
         body += '</div></div>';
         if (source) body += '<p style="text-align:center;color:var(--purple);font-size:1rem;margin-top:16px">—— ' + source + '</p>';
