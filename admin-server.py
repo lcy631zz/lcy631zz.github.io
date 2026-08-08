@@ -64,6 +64,42 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json(result, 400)
             else:
                 self.send_json(result)
+        elif self.path == '/api/update':
+            content_len = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_len).decode('utf-8')
+            params = parse_qs(body)
+
+            ctype = params.get('type', [''])[0]
+            cid = params.get('id', [''])[0]
+            title = params.get('title', [''])[0].strip()
+
+            if not ctype:
+                self.send_json({'error': '请选择类型'}, 400)
+                return
+            if not cid:
+                self.send_json({'error': '缺少内容 ID'}, 400)
+                return
+            if ctype in ('post', 'project') and not title:
+                self.send_json({'error': '标题不能为空'}, 400)
+                return
+
+            if ctype == 'post':
+                result = self._update_post(cid, params)
+            elif ctype == 'project':
+                result = self._update_project(cid, params)
+            elif ctype == 'photo':
+                result = self._update_photo(cid, params)
+            elif ctype == 'travel':
+                result = self._update_travel(cid, params)
+            elif ctype == 'zhai':
+                result = self._update_zhai(cid, params)
+            else:
+                result = {'error': '未知类型'}
+
+            if 'error' in result:
+                self.send_json(result, 400)
+            else:
+                self.send_json(result)
         elif self.path == '/api/git/publish':
             self.send_json(self.git_publish())
         elif self.path == '/api/git/rollback':
@@ -458,7 +494,10 @@ link: "{link}"
     def handle_content(self):
         qs = parse_qs(urlparse(self.path).query)
         ctype = qs.get('type', [''])[0]
+        cid = qs.get('id', [''])[0]
         if self.command == 'GET':
+            if cid:
+                return self.get_content(ctype, cid)
             return self.list_content(ctype)
         self.send_json({'error': '不支持的请求方法'}, 405)
 
