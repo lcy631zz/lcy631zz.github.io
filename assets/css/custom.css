@@ -293,6 +293,13 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .page-zhai .zhai-item cite{color:var(--purple);font-size:.9rem;font-style:normal;font-weight:500}
 .page-zhai .zhai-note{color:var(--text3);font-size:.85rem;margin-top:8px}
 .page-zhai .zhai-img{width:100%;max-height:300px;object-fit:cover;border-radius:var(--r-s);margin-bottom:12px;cursor:pointer}
+.page-zhai .zhai-poetry-card{text-align:center;padding:32px 28px;background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(248,245,255,.85));border-color:rgba(123,104,174,.12)}
+.page-zhai .zhai-poetry-card:hover{border-color:rgba(123,104,174,.3);box-shadow:0 4px 24px rgba(123,104,174,.12);transform:translateY(-2px)}
+.page-zhai .zhai-poetry-header{margin-bottom:16px}
+.page-zhai .zhai-poetry-title{font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--purple-dark);line-height:1.6;margin-bottom:12px;letter-spacing:.04em}
+.page-zhai .zhai-poetry-body{font-family:var(--serif);font-size:1.15rem;line-height:2.2;color:var(--text);letter-spacing:.06em}
+.page-zhai .zhai-poetry-line{margin:0;padding:2px 0}
+.page-zhai .zhai-poetry-source{color:var(--purple);font-size:.95rem;font-style:normal;font-weight:500;margin-top:14px;padding-top:12px;border-top:1px solid rgba(123,104,174,.1);display:inline-block}
 
 /* Projects list - 灰色 */
 .page-projects{background:linear-gradient(180deg,#FFF 0%,var(--gray-pale) 30%,#EEF0F3 100%);position:relative;overflow:hidden}

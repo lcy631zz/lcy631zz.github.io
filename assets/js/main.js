@@ -188,15 +188,31 @@ function renderZhaiList() {
     zl.innerHTML = window.ZHAI.items.map((z, i) => {
         const quote = (z.quote || '').replace(/'/g, "\\'");
         const source = z.source ? '<cite>—— ' + z.source + '</cite>' : '';
-        let html = '<div class="zhai-item fi" onclick="openZhaiModal(' + i + ')">';
+        const isPoetry = z.poetry;
+        let html = '<div class="zhai-item fi ' + (isPoetry ? 'zhai-poetry-card' : '') + '" onclick="openZhaiModal(' + i + ')">';
         if (z.img) {
             const img = z.img.replace(/'/g, "\\'");
             html += '<img class="zhai-img" src="' + img + '" alt="' + (z.source || '') + '" onclick="event.stopPropagation();openLightbox(\'' + img + '\',\'' + (z.source || '') + '\')">';
         }
-        html += '<div class="zhai-quote">"“' + quote + '”</div>' +
-            source +
-            (z.note ? '<div class="zhai-note">' + z.note + '</div>' : '') +
-            '</div>';
+        if (isPoetry) {
+            // Poetry layout: centered, larger serif font, title line + body
+            const lines = quote.split(/[，。！？、；：]/).filter(l => l.trim());
+            const titleLine = lines.length > 1 ? lines[0] : '';
+            const bodyLines = lines.length > 1 ? lines.slice(1) : lines;
+            html += '<div class="zhai-poetry-header">';
+            if (titleLine) html += '<div class="zhai-poetry-title">“' + titleLine + '”</div>';
+            html += '<div class="zhai-poetry-body">';
+            bodyLines.forEach(l => { html += '<div class="zhai-poetry-line">' + l + '</div>'; });
+            html += '</div>';
+            html += '</div>';
+            if (source) html += '<div class="zhai-poetry-source">' + source + '</div>';
+            if (z.note) html += '<div class="zhai-note">' + z.note + '</div>';
+        } else {
+            html += '<div class="zhai-quote">"' + quote + '"</div>' +
+source +
+                (z.note ? '<div class="zhai-note">' + z.note + '</div>' : '');
+        }
+        html += '</div>';
         return html;
     }).join('');
     requestAnimationFrame(() => {
@@ -212,12 +228,29 @@ function openZhaiModal(i) {
     const source = z.source || '';
     const note = z.note || '';
     document.getElementById('mTitle').textContent = source || (lang === 'en' ? 'Excerpt' : '摘抄');
-    let body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">“' + quote + '”</blockquote>';
-    if (z.img) {
-        const img = z.img.replace(/'/g, "\\'");
-        body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + img + '\',\'' + source + '\')"></div>';
+    if (z.poetry) {
+        const lines = quote.split(/[，。！？、；：]/).filter(l => l.trim());
+        const titleLine = lines.length > 1 ? lines[0] : '';
+        const bodyLines = lines.length > 1 ? lines.slice(1) : lines;
+        let body = '<div style="text-align:center;padding:20px 0">';
+        if (titleLine) body += '<div style="font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--purple-dark);margin-bottom:16px;letter-spacing:.06em">' + titleLine + '</div>';
+        body += '<div style="font-family:var(--serif);font-size:1.25rem;line-height:2.4;color:var(--text);letter-spacing:.08em">';
+        bodyLines.forEach(l => { body += '<div style="margin:0;padding:3px 0">' + l + '</div>'; });
+        body += '</div></div>';
+        if (source) body += '<p style="text-align:center;color:var(--purple);font-size:1rem;margin-top:16px">—— ' + source + '</p>';
+        if (z.img) {
+            const img = z.img.replace(/'/g, "\\'");
+            body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + img + '\',\'' + source + '\')"></div>';
+        }
+        if (note) body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px;text-align:center">' + note + '</p>';
+    } else {
+        let body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">“' + quote + '”</blockquote>';
+        if (z.img) {
+            const img = z.img.replace(/'/g, "\\'");
+            body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + img + '\',\'' + source + '\')"></div>';
+        }
+        if (note) body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px">' + note + '</p>';
     }
-    if (note) body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px">' + note + '</p>';
     document.getElementById('mMeta').innerHTML = '';
     document.getElementById('mBody').innerHTML = body;
     document.getElementById('artModal').classList.add('show');

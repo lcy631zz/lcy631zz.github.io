@@ -1,8 +1,208 @@
 {
   "items": [
     {
-      "quote": "一竿风月，一蓑烟雨，家在钓台西住。卖鱼生怕近城门，况肯到红尘深处？\n潮生理棹，潮平系缆，潮落浩歌归去。时人错把比严光，我自是无名渔父。",
-      "source": "《鹊桥仙》陆游"
+      "quote": "世界上只有一种真正的英雄主义，那就是在认清生活的真相后，依然热爱生活。",
+      "source": "罗曼·罗兰",
+      "note": "《约翰·克利斯朵夫》",
+      "poetry": false
+    },
+    {
+      "quote": "你遭受了痛苦，你也不要向人诉说，以求同情，因为一个有独特性的人，连他的痛苦都是独特的，深刻的，不易被人了解。",
+      "source": "尼采",
+      "note": "《快乐的知识》",
+      "poetry": false
+    },
+    {
+      "quote": "人生如逆旅，我亦是行人。",
+      "source": "苏轼",
+      "note": "《临江仙》",
+      "poetry": true
+    },
+    {
+      "quote": "万物皆有裂痕，那是光照进来的地方。",
+      "source": "莱昂纳德·科恩",
+      "note": "《Anthem》",
+      "poetry": false
+    },
+    {
+      "quote": "浮生若梦，若梦非梦，浮生何哉？浮生若梦，为梦非梦，梦何哉？",
+      "source": "关汉卿",
+      "note": "《窦娥冤》",
+      "poetry": true
+    },
+    {
+      "quote": "The only way to do great work is to love what you do.",
+      "source": "Steve Jobs",
+      "note": "Stanford Commencement Speech",
+      "poetry": false
+    },
+    {
+      "quote": "醉后不知天在水，满船清梦压星河。",
+      "source": "唐温如",
+      "note": "《题龙阳县青草湖》",
+      "poetry": true
+    },
+    {
+      "quote": "人生得意须尽欢，莫使金樽空对月。",
+      "source": "李白",
+      "note": "《将进酒》",
+      "poetry": true
+    },
+    {
+      "quote": "曾经沧海难为水，除却巫山不是云。",
+      "source": "元稹",
+      "note": "《离思》",
+      "poetry": true
+    },
+    {
+      "quote": "此情可待成追忆，只是当时已惘然。",
+      "source": "李商隐",
+      "note": "《锦瑟》",
+      "poetry": true
+    },
+    {
+      "quote": "大漠孤烟直，长河落日圆。",
+      "source": "王维",
+      "note": "《使至塞上》",
+      "poetry": true
+    },
+    {
+      "quote": "落霞与孤鹜齐飞，秋水共长天一色。",
+      "source": "王勃",
+      "note": "《滕王阁序》",
+      "poetry": true
+    },
+    {
+      "quote": "桃李春风一杯酒，江湖夜雨十年灯。",
+      "source": "黄庭坚",
+      "note": "《寄黄几复》",
+      "poetry": true
+    },
+    {
+      "quote": "众里寻他千百度，蓦然回首，那人却在，灯火阑珊处。",
+      "source": "辛弃疾",
+      "note": "《青玉案·元夕》",
+      "poetry": true
+    },
+    {
+      "quote": "竹杖芒鞋轻胜马，谁怕？一蓑烟雨任平生。",
+      "source": "苏轼",
+      "note": "《定风波》",
+      "poetry": true
+    },
+    {
+      "quote": "人生若只如初见，何事秋风悲画扇。",
+      "source": "纳兰性德",
+      "note": "《木兰花令》",
+      "poetry": true
+    },
+    {
+      "quote": "不经一番寒彻骨，怎得梅花扑鼻香。",
+      "source": "黄檗禅师",
+      "note": "《上堂开示颂》",
+      "poetry": true
+    },
+    {
+      "quote": "长风破浪会有时，直挂云帆济沧海。",
+      "source": "李白",
+      "note": "《行路难》",
+      "poetry": true
+    },
+    {
+      "quote": "不以物喜，不以己悲。",
+      "source": "范仲淹",
+      "note": "《岳阳楼记》",
+      "poetry": true
+    },
+    {
+      "quote": "世间安得双全法，不负如来不负卿。",
+      "source": "仓央嘉措",
+      "note": "",
+      "poetry": false
+    },
+    {
+      "quote": "To be, or not to be, that is the question.",
+      "source": "Shakespeare",
+      "note": "Hamlet",
+      "poetry": false
+    },
+    {
+      "quote": "Stay hungry, stay foolish.",
+      "source": "Steve Jobs",
+      "note": "Stanford Commencement Speech",
+      "poetry": false
+    },
+    {
+      "quote": "In the middle of difficulty lies opportunity.",
+      "source": "Albert Einstein",
+      "note": "",
+      "poetry": false
+    },
+    {
+      "quote": "采菊东篱下，悠然见南山。",
+      "source": "陶渊明",
+      "note": "《饮酒》",
+      "poetry": true
+    },
+    {
+      "quote": "天行健，君子以自强不息。",
+      "source": "《周易》",
+      "note": "",
+      "poetry": true
+    },
+    {
+      "quote": "路漫漫其修远兮，吾将上下而求索。",
+      "source": "屈原",
+      "note": "《离骚》",
+      "poetry": true
+    },
+    {
+      "quote": "海内存知己，天涯若比邻。",
+      "source": "王勃",
+      "note": "《送杜少府之任蜀州》",
+      "poetry": true
+    },
+    {
+      "quote": "会当凌绝顶，一览众山小。",
+      "source": "杜甫",
+      "note": "《望岳》",
+      "poetry": true
+    },
+    {
+      "quote": "问渠那得清如许，为有源头活水来。",
+      "source": "朱熹",
+      "note": "《观书有感》",
+      "poetry": true
+    },
+    {
+      "quote": "大江东去，浪淘尽，千古风流人物。",
+      "source": "苏轼",
+      "note": "《念奴娇·赤壁怀古》",
+      "poetry": true
+    },
+    {
+      "quote": "一个人可以被毁灭，但不能被打败。",
+      "source": "海明威",
+      "note": "《老人与海》",
+      "poetry": false
+    },
+    {
+      "quote": "你站在桥上看风景，看风景的人在楼上看你。",
+      "source": "卞之琳",
+      "note": "《断章》",
+      "poetry": true
+    },
+    {
+      "quote": "黑夜给了我黑色的眼睛，我却用它寻找光明。",
+      "source": "顾城",
+      "note": "《一代人》",
+      "poetry": true
+    },
+    {
+      "quote": "活在这珍贵的人间，太阳强烈，水波温柔。",
+      "source": "海子",
+      "note": "《活在珍贵的人间》",
+      "poetry": true
     }
   ]
 }
