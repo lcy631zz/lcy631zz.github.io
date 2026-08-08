@@ -1,0 +1,33 @@
+{{ define "main" }}
+<section class="page-section page-projects">
+    <div class="section-inner">
+        <div class="page-divider"></div>
+        <h1 class="page-title">{{ i18n "projects.title" | default "项目" }}</h1>
+        <p class="page-desc">{{ i18n "projects.desc" | default "一些我投入时间和热情去做的事情。" }}</p>
+        <div class="project-list">
+            {{ $pages := where .Site.RegularPages "Section" "projects" }}
+            {{ if $pages }}
+                {{ range $pages }}
+                <a href="{{ .RelPermalink }}" class="project-item fi">
+                    <div class="project-icon">📁</div>
+                    <div class="project-info">
+                        <h3>{{ .Title }}</h3>
+                        <p>{{ .Description | default (.Plain | truncate 120) }}</p>
+                    </div>
+                    {{ if .Params.tags }}
+                    <div class="project-tags">
+                        {{ range .Params.tags }}
+                            <span class="project-tag">{{ . }}</span>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                    <span class="project-arrow">→</span>
+                </a>
+                {{ end }}
+            {{ else }}
+                <div class="empty"><div class="empty-icon">📁</div>暂无项目</div>
+            {{ end }}
+        </div>
+    </div>
+</section>
+{{ end }}

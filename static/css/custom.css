@@ -304,7 +304,7 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .page-projects .project-item:hover .project-arrow{color:var(--gray-dark)}
 
 /* About page */
-.page-about .page-divider{background:var(--red)}.page-about .page-title{color:var(--red)}.page-about .detail-body h2,.page-about .detail-body h3{color:var(--red)}
+.page-about .page-divider{background:var(--red)}.page-about .page-title{color:var(--red)}.page-about .detail-body h2{color:var(--red)!important;background:rgba(255,0,0,0.1)!important}.page-about .detail-body h3{color:var(--red)!important}
 
 /* Empty state */
 .empty{color:var(--text3);text-align:center;padding:48px 24px;font-size:.95rem}

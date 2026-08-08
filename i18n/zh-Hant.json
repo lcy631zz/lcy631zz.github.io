@@ -12,12 +12,13 @@
     "cta": "瞭解得更多"
   },
   "about": {
-    "name": "lcy631zz",
+    "name": "Eintv",
     "role": "一名大學生",
     "intro_title": "自我介紹",
-    "intro_text": "你好！👋\n我是 lcy631zz，一名大學生。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
-    "info_title": "基本資訊",
-    "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+    "intro_text": "你好！👋\n我是 Eintv。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
+    "info_title": "",
+    "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
+    "hub_desc": "关于我的介绍"
   },
   "articles": {
     "title": "文",

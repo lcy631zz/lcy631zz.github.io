@@ -1,5 +1,5 @@
 {
-  "zh-CN": {
+  "zh-Hans": {
     "site_name": "空间",
     "hero": {
       "badge": "欢迎来到我的博客",
@@ -13,21 +13,22 @@
       "cta": "了解更多"
     },
     "about": {
-      "name": "lcy631zz",
+      "name": "Eintv",
       "role": "一名大学生",
       "intro_title": "自我介绍",
-      "intro_text": "你好！👋\n我是 lcy631zz，一名大学生。\n这个博客是我记录学习、分享想法、展示项目的空间。",
-      "info_title": "基本信息",
-      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+      "intro_text": "你好！👋\n我是 Eintv。\n这个博客是我记录学习、分享想法、展示项目的空间。",
+      "info_title": "",
+      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
+      "hub_desc": "关于我的介绍"
     },
     "articles": {
       "title": "文",
-      "desc": "记录技术探索、学习心得与生活中的思考。",
+      "desc": "体裁不限，这里会展示我不同时期的所思所想。",
       "hub_desc": "文学创作与思考"
     },
     "yin": {
       "title": "荫",
-      "desc": "一方宁静的角落，种下思绪，收获平和。",
+      "desc": "它们受同一个内核支配。",
       "hub_desc": "一方宁静的角落",
       "quote": "静水流深，沧笙踏歌。",
       "quote_author": "佚名",
@@ -51,7 +52,7 @@
     },
     "footer": "用 ❤ 与代码构建 · 2026"
   },
-  "zh-TW": {
+  "zh-Hant": {
     "site_name": "空間",
     "hero": {
       "badge": "歡迎來到我的部落格",
@@ -65,21 +66,22 @@
       "cta": "瞭解得更多"
     },
     "about": {
-      "name": "lcy631zz",
+      "name": "Eintv",
       "role": "一名大學生",
       "intro_title": "自我介紹",
-      "intro_text": "你好！👋\n我是 lcy631zz，一名大學生。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
-      "info_title": "基本資訊",
-      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+      "intro_text": "你好！👋\n我是 Eintv。\n這個部落格是我記錄學習、分享想法、展示項目的空間。",
+      "info_title": "",
+      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
+      "hub_desc": "關於我的介紹"
     },
     "articles": {
       "title": "文",
-      "desc": "記錄技術探索、學習心得與生活中的思考。",
+      "desc": "體裁不限，這裡會展示我不同時期的所思所想。",
       "hub_desc": "文學創作與思考"
     },
     "yin": {
       "title": "蔭",
-      "desc": "一方寧靜的角落，種下思緒，收獲平和。",
+      "desc": "它們受同一個內核支配。",
       "hub_desc": "一方寧靜的角落",
       "quote": "靜水流深，滄笙踏歌。",
       "quote_author": "佚名",
@@ -117,12 +119,13 @@
       "cta": "Learn More"
     },
     "about": {
-      "name": "lcy631zz",
+      "name": "Eintv",
       "role": "University Student",
       "intro_title": "Introduction",
-      "intro_text": "Hi! 👋\nI'm lcy631zz, a university student.\nThis blog is my space to document learning, share ideas, and showcase projects.",
-      "info_title": "Basic Info",
-      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+      "intro_text": "Hi! 👋\nI'm Eintv.\nThis blog is my space to document learning, share ideas, and showcase projects.",
+      "info_title": "",
+      "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
+      "hub_desc": "About Me"
     },
     "articles": {
       "title": "Articles",
@@ -132,7 +135,7 @@
     "yin": {
       "title": "Sanctuary",
       "desc": "A quiet corner for peace and inspiration.",
-      "hub_desc": "A quiet corner for peace",
+      "hub_desc": "A quiet corner",
       "quote": "Still waters run deep.",
       "quote_author": "Anonymous",
       "items": []

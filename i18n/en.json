@@ -12,12 +12,13 @@
     "cta": "Learn More"
   },
   "about": {
-    "name": "lcy631zz",
+    "name": "Eintv",
     "role": "University Student",
     "intro_title": "Introduction",
-    "intro_text": "Hi! 👋\nI'm lcy631zz, a university student.\nThis blog is my space to document learning, share ideas, and showcase projects.",
-    "info_title": "Basic Info",
-    "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz"
+    "intro_text": "Hi! 👋\nI'm Eintv.\nThis blog is my space to document learning, share ideas, and showcase projects.",
+    "info_title": "",
+    "info_text": "📧 Email：54363688@qq.com\n🐙 GitHub：lcy631zz",
+    "hub_desc": "About Me"
   },
   "articles": {
     "title": "Articles",

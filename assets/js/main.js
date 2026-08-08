@@ -1,5 +1,5 @@
 /* Main JS: language switcher, scroll, lightbox, content rendering */
-let DATA = null, lang = 'zh-CN';
+let DATA = null, lang = 'zh-Hans';
 
 /* Detect current page from URL */
 function getPage() {
@@ -20,6 +20,7 @@ function getPage() {
 function $(id) { return document.getElementById(id); }
 
 function loadContent() {
+    loadLang();
     try {
         DATA = window.I18N;
     } catch (e) {
@@ -236,7 +237,19 @@ function setNavActive(page) {
 function setLang(l) {
     lang = l;
     document.documentElement.lang = l;
+    try { localStorage.setItem('site-lang', l); } catch(e) {}
     render();
+}
+
+/* Load saved language */
+function loadLang() {
+    try {
+        const saved = localStorage.getItem('site-lang');
+        if (saved && (saved === 'zh-Hans' || saved === 'zh-Hant' || saved === 'en')) {
+            lang = saved;
+            document.documentElement.lang = lang;
+        }
+    } catch(e) {}
 }
 
 /* Modal (kept for backward compat) */
