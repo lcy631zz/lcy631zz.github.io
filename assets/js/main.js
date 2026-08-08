@@ -86,6 +86,16 @@ function render() {
         setText('aInfo', a?.info_text);
     }
 
+    /* Blog section page */
+    if (page === 'blog') {
+        setText('pageDesc', d.articles?.desc);
+    }
+
+    /* Projects section page */
+    if (page === 'projects') {
+        setText('pageDesc', d.projects?.desc);
+    }
+
     /* Yin section page */
     if (page === 'yin') {
         setText('pageDesc', d.yin?.desc);
@@ -107,6 +117,9 @@ function render() {
         setText('pageDesc', d.zhai?.desc);
         updateDailyQuote();
     }
+
+    /* Footer (all pages) */
+    setText('footer', d?.footer);
 
     /* Language switcher button states */
     document.querySelectorAll('.lang-btn').forEach(b => {

@@ -3,7 +3,7 @@
     <div class="section-inner">
         <div class="page-divider"></div>
         <h1 class="page-title">{{ i18n "projects.title" | default "项目" }}</h1>
-        <p class="page-desc">{{ i18n "projects.desc" | default "一些我投入时间和热情去做的事情。" }}</p>
+        <p class="page-desc" id="pageDesc">{{ i18n "projects.desc" | default "一些我投入时间和热情去做的事情。" }}</p>
         <div class="project-list">
             {{ $pages := where .Site.RegularPages "Section" "projects" }}
             {{ if $pages }}
