@@ -37,6 +37,22 @@ function loadContent() {
 function t(k) { return DATA?.[lang]?.[k] ?? ''; }
 function na() { return lang === 'en' ? 'N/A' : '无'; }
 
+/* Convert relative image path to absolute site-root path */
+function absPath(p) {
+    if (!p) return '';
+    if (p.startsWith('/') || p.startsWith('http') || p.startsWith('data:')) return p;
+    return '/' + p;
+}
+
+/* Open lightbox */
+function openLightbox(img, cap) {
+    const lbImg = $('lbImg'), lbCap = $('lbCap'), lb = $('lightbox');
+    if (lbImg) lbImg.src = img || '';
+    if (lbCap) lbCap.textContent = cap || '';
+    if (lb) lb.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
 function render() {
     if (!DATA) return;
     const d = DATA[lang];
@@ -121,6 +137,11 @@ function render() {
     /* Footer (all pages) */
     setText('footer', d?.footer);
 
+    /* Animate .fi elements on all pages */
+    requestAnimationFrame(() => {
+        document.querySelectorAll('.fi:not(.v)').forEach(el => el.classList.add('v'));
+    });
+
     /* Language switcher button states */
     document.querySelectorAll('.lang-btn').forEach(b => {
         b.classList.toggle('on', b.dataset.lang === lang);
@@ -146,8 +167,9 @@ function renderYinGrid() {
     }
     yg.innerHTML = window.YIN.items.map(y => {
         const cap = (y.caption || '').replace(/'/g, "\\'");
-        return '<div class="yin-item fi" onclick="openLightbox(\'' + y.img + '\',\'' + cap + '\')">' +
-            '<img src="' + y.img + '" alt="' + (y.caption || '') + '" loading="lazy">' +
+        const src = absPath(y.img);
+        return '<div class="yin-item fi" onclick="openLightbox(\'' + src + '\',\'' + cap + '\')">' +
+            '<img src="' + src + '" alt="' + (y.caption || '') + '" loading="lazy">' +
             (y.caption ? '<div class="yin-caption">' + y.caption + '</div>' : '') +
             '</div>';
     }).join('');
@@ -166,8 +188,9 @@ function renderXingGrid() {
     }
     xg.innerHTML = window.XING.items.map(x => {
         const cap = (x.caption || '').replace(/'/g, "\\'");
-        return '<div class="xing-item fi" onclick="openLightbox(\'' + x.img + '\',\'' + cap + '\')">' +
-            '<img src="' + x.img + '" alt="' + (x.caption || '') + '" loading="lazy">' +
+        const src = absPath(x.img);
+        return '<div class="xing-item fi" onclick="openLightbox(\'' + src + '\',\'' + cap + '\')">' +
+            '<img src="' + src + '" alt="' + (x.caption || '') + '" loading="lazy">' +
             (x.place ? '<div class="xing-place">' + x.place + '</div>' : '') +
             (x.caption ? '<div class="xing-caption">' + x.caption + '</div>' : '') +
             '</div>';
@@ -176,6 +199,9 @@ function renderXingGrid() {
         xg.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
     });
 }
+
+/* Escape single quotes for use in HTML onclick attributes */
+function sqEscape(s) { return (s || '').replace(/'/g, String.fromCharCode(92, 39)); }
 
 /* Render zhai quote list */
 function renderZhaiList() {
@@ -186,13 +212,15 @@ function renderZhaiList() {
         return;
     }
     zl.innerHTML = window.ZHAI.items.map((z, i) => {
-        const quote = (z.quote || '').replace(/'/g, "\\'");
+        const quote = sqEscape(z.quote || '');
         const source = z.source ? '<cite>—— ' + z.source + '</cite>' : '';
         const isPoetry = z.poetry;
         let html = '<div class="zhai-item fi ' + (isPoetry ? 'zhai-poetry-card' : '') + '" onclick="openZhaiModal(' + i + ')">';
         if (z.img) {
-            const img = z.img.replace(/'/g, "\\'");
-            html += '<img class="zhai-img" src="' + img + '" alt="' + (z.source || '') + '" onclick="event.stopPropagation();openLightbox(\'' + img + '\',\'' + (z.source || '') + '\')">';
+            const img = absPath(z.img);
+            const ie = sqEscape(img);
+            const se = sqEscape(z.source || '');
+            html += '<img class="zhai-img" src="' + img + '" alt="' + (z.source || '') + '" onclick="event.stopPropagation();openLightbox(\'' + ie + '\',\'' + se + '\')">';
         }
         if (isPoetry) {
             // Poetry: show each stanza (split by \n) as a separate line
@@ -233,19 +261,30 @@ function openZhaiModal(i) {
             body += '<div class="zhai-poetry-line" style="margin-bottom:' + (si < stanzas.length - 1 ? '18px' : '0') + '">' + stanza.trim() + '</div>';
         });
         body += '</div></div>';
-        if (source) body += '<p style="text-align:center;color:var(--purple);font-size:1rem;margin-top:16px">—— ' + source + '</p>';
-        if (z.img) {
-            const img = z.img.replace(/'/g, "\\'");
-            body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + img + '\',\'' + source + '\')"></div>';
+        if (source) {
+            body += '<p style="text-align:center;color:var(--purple);font-size:1rem;margin-top:16px">—— ' + source + '</p>';
         }
-        if (note) body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px;text-align:center">' + note + '</p>';
+        if (z.img) {
+            const img = absPath(z.img);
+            const ie = sqEscape(img);
+            const se = sqEscape(source || '');
+            body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + ie + '\',\'' + se + '\')"></div>';
+        }
+        if (note) {
+            body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px;text-align:center">' + note + '</p>';
+        }
     } else {
-        let body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">“' + quote + '”</blockquote>';
+        let body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">';
+        body += '“' + quote + '”</blockquote>';
         if (z.img) {
-            const img = z.img.replace(/'/g, "\\'");
-            body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + img + '\',\'' + source + '\')"></div>';
+            const img = absPath(z.img);
+            const ie = sqEscape(img);
+            const se = sqEscape(source || '');
+            body += '<div style="margin-top:16px;text-align:center"><img src="' + img + '" style="max-width:100%;border-radius:var(--r-s);cursor:pointer" onclick="openLightbox(\'' + ie + '\',\'' + se + '\')"></div>';
         }
-        if (note) body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px">' + note + '</p>';
+        if (note) {
+            body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px">' + note + '</p>';
+        }
     }
     document.getElementById('mMeta').innerHTML = '';
     document.getElementById('mBody').innerHTML = body;
