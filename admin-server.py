@@ -25,6 +25,8 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(self.git_status())
         elif self.path == '/api/git/log':
             self.send_json(self.git_log())
+        elif self.path.startswith('/api/content'):
+            self.send_json(self.handle_content())
         else:
             super().do_GET()
 
@@ -66,6 +68,16 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(self.git_publish())
         elif self.path == '/api/git/rollback':
             self.send_json(self.git_rollback())
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_DELETE(self):
+        if self.path.startswith('/api/content'):
+            content_len = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_len).decode('utf-8')
+            params = parse_qs(body)
+            self.send_json(self.delete_content(params))
         else:
             self.send_response(404)
             self.end_headers()
@@ -350,6 +362,140 @@ link: "{link}"
         if r['rc'] != 0:
             return {'error': 'git clean 失败: ' + r['stderr']}
         return {'success': True, 'message': '已回滚到上一次提交的状态'}
+
+    def handle_content(self):
+        qs = parse_qs(urlparse(self.path).query)
+        ctype = qs.get('type', [''])[0]
+        if self.command == 'GET':
+            return self.list_content(ctype)
+        self.send_json({'error': '不支持的请求方法'}, 405)
+
+    def list_content(self, ctype):
+        try:
+            if ctype == 'post':
+                return self._list_posts()
+            elif ctype == 'photo':
+                return self._list_photos()
+            elif ctype == 'travel':
+                return self._list_travels()
+            elif ctype == 'project':
+                return self._list_projects()
+            elif ctype == 'zhai':
+                return self._list_zhaies()
+            else:
+                return {'error': '未知类型'}
+        except Exception as e:
+            return {'error': str(e)}
+
+    def _list_posts(self):
+        items = []
+        blog_dir = os.path.join(BLOG_DIR, 'content', 'blog')
+        if os.path.isdir(blog_dir):
+            for d in sorted(os.listdir(blog_dir), reverse=True):
+                idx = os.path.join(blog_dir, d, 'index.zh-Hans.md')
+                if os.path.isfile(idx):
+                    items.append({'id': d, 'title': d, 'path': idx, 'type': 'dir'})
+        return {'items': items}
+
+    def _list_photos(self):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'yin.json'), encoding='utf-8'))
+        items = []
+        for i, item in enumerate(data.get('items', [])):
+            items.append({'id': str(i), 'title': item.get('caption', item.get('img', '')), 'img': item.get('img', ''), 'caption': item.get('caption', ''), 'index': i})
+        return {'items': items}
+
+    def _list_travels(self):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'xing.json'), encoding='utf-8'))
+        items = []
+        for i, item in enumerate(data.get('items', [])):
+            items.append({'id': str(i), 'title': item.get('place', item.get('caption', '')), 'img': item.get('img', ''), 'place': item.get('place', ''), 'caption': item.get('caption', ''), 'index': i})
+        return {'items': items}
+
+    def _list_projects(self):
+        items = []
+        proj_dir = os.path.join(BLOG_DIR, 'content', 'projects')
+        if os.path.isdir(proj_dir):
+            for d in sorted(os.listdir(proj_dir), reverse=True):
+                idx = os.path.join(proj_dir, d, 'index.zh-Hans.md')
+                if os.path.isfile(idx):
+                    items.append({'id': d, 'title': d, 'path': idx, 'type': 'dir'})
+        return {'items': items}
+
+    def _list_zhaies(self):
+        data = json.load(open(os.path.join(BLOG_DIR, 'data', 'zhai.json'), encoding='utf-8'))
+        items = []
+        for i, item in enumerate(data.get('items', [])):
+            items.append({'id': str(i), 'title': item.get('source', item.get('quote', '')[:30]), 'quote': item.get('quote', ''), 'source': item.get('source', ''), 'note': item.get('note', ''), 'index': i})
+        return {'items': items}
+
+    def delete_content(self, params):
+        qs = parse_qs(urlparse(self.path).query)
+        ctype = qs.get('type', [''])[0] or params.get('type', [''])[0]
+        cid = params.get('id', [''])[0]
+        try:
+            if ctype == 'post':
+                return self._delete_post(cid)
+            elif ctype == 'photo':
+                return self._delete_photo(cid)
+            elif ctype == 'travel':
+                return self._delete_travel(cid)
+            elif ctype == 'project':
+                return self._delete_project(cid)
+            elif ctype == 'zhai':
+                return self._delete_zhai(cid)
+            else:
+                return {'error': '未知类型'}
+        except Exception as e:
+            return {'error': str(e)}
+
+    def _delete_post(self, cid):
+        import shutil
+        dir_path = os.path.join(BLOG_DIR, 'content', 'blog', cid)
+        if not os.path.isdir(dir_path):
+            return {'error': f'文章「{cid}」不存在'}
+        shutil.rmtree(dir_path)
+        return {'success': True, 'message': f'已删除文章「{cid}」'}
+
+    def _delete_project(self, cid):
+        import shutil
+        dir_path = os.path.join(BLOG_DIR, 'content', 'projects', cid)
+        if not os.path.isdir(dir_path):
+            return {'error': f'项目「{cid}」不存在'}
+        shutil.rmtree(dir_path)
+        return {'success': True, 'message': f'已删除项目「{cid}」'}
+
+    def _delete_photo(self, cid):
+        data_file = os.path.join(BLOG_DIR, 'data', 'yin.json')
+        data = json.load(open(data_file, encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '照片不存在'}
+        data['items'].pop(idx)
+        with open(data_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return {'success': True, 'message': '已删除照片'}
+
+    def _delete_travel(self, cid):
+        data_file = os.path.join(BLOG_DIR, 'data', 'xing.json')
+        data = json.load(open(data_file, encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '旅行不存在'}
+        data['items'].pop(idx)
+        with open(data_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return {'success': True, 'message': '已删除旅行'}
+
+    def _delete_zhai(self, cid):
+        data_file = os.path.join(BLOG_DIR, 'data', 'zhai.json')
+        data = json.load(open(data_file, encoding='utf-8'))
+        idx = int(cid)
+        if idx < 0 or idx >= len(data.get('items', [])):
+            return {'error': '摘抄不存在'}
+        data['items'].pop(idx)
+        with open(data_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return {'success': True, 'message': '已删除摘抄'}
 
     def send_admin_page(self):
         html = '''<!DOCTYPE html>
@@ -757,6 +903,7 @@ link: "{link}"
             <button class="tab-btn" onclick="switchTab('travel')">✈️ 加旅行</button>
             <button class="tab-btn" onclick="switchTab('project')">📁 加项目</button>
             <button class="tab-btn" onclick="switchTab('zhai')">📖 加摘抄</button>
+            <button class="tab-btn" onclick="switchTab('manage')" style="background:#f0f0f0">📋 内容管理</button>
         </div>
 
         <!-- 写文章 -->
@@ -922,6 +1069,22 @@ link: "{link}"
                 <button type="submit" class="btn-submit" id="btn-zhai">添加摘抄</button>
             </form>
         </div>
+
+        <!-- 内容管理 -->
+        <div class="form-card" id="form-manage">
+            <h2>管理已发布内容</h2>
+            <p class="desc">查看、编辑或删除你已经发布的内容。</p>
+            <div class="tabs" style="margin-bottom:16px">
+                <button class="tab-btn active" onclick="manageTab='post';loadManageList()">📝 文章</button>
+                <button class="tab-btn" onclick="manageTab='photo';loadManageList()">🖼️ 照片</button>
+                <button class="tab-btn" onclick="manageTab='travel';loadManageList()">✈️ 旅行</button>
+                <button class="tab-btn" onclick="manageTab='project';loadManageList()">📁 项目</button>
+                <button class="tab-btn" onclick="manageTab='zhai';loadManageList()">📖 摘抄</button>
+            </div>
+            <div id="manageList" style="min-height:100px">
+                <p style="color:#8E8EA0;text-align:center;padding:40px">加载中...</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -950,6 +1113,81 @@ link: "{link}"
             if (d2 && d2.type === 'date' && !d2.value) d2.value = today;
         }
         setDefaultDate();
+
+        // 内容管理
+        let manageTab = 'post';
+        const manageTypeNames = {post: '文章', photo: '照片', travel: '旅行', project: '项目', zhai: '摘抄'};
+
+        function loadManageList() {
+            const listEl = document.getElementById('manageList');
+            listEl.innerHTML = '<p style="color:#8E8EA0;text-align:center;padding:40px">加载中...</p>';
+            fetch('/api/content?type=' + manageTab)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        listEl.innerHTML = '<p style="color:#B22F2A;text-align:center;padding:40px">' + data.error + '</p>';
+                        return;
+                    }
+                    const items = data.items || [];
+                    if (!items.length) {
+                        listEl.innerHTML = '<p style="color:#8E8EA0;text-align:center;padding:40px">暂无内容</p>';
+                        return;
+                    }
+                    listEl.innerHTML = '<div style="display:grid;gap:12px">' + items.map(item => {
+                        const title = item.title || item.quote?.substring(0, 50) || '未命名';
+                        const subtitle = item.source || item.place || item.caption || item.path || '';
+                        const imgPreview = item.img ? `<div style="width:60px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0"><img src="/${item.img}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"></div>` : '';
+                        return `<div class="manage-item">
+                            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fafafa;border-radius:10px;border:1px solid #eee">
+                                ${imgPreview}
+                                <div style="flex:1;min-width:0">
+                                    <div style="font-weight:600;color:#1A1A2E">${title}</div>
+                                    ${subtitle ? `<div style="font-size:0.85rem;color:#8E8EA0;margin-top:2px">${subtitle}</div>` : ''}
+                                </div>
+                                <div style="display:flex;gap:6px;flex-shrink:0">
+                                    <button onclick="editItem('${item.id}')" style="padding:6px 16px;border:1px solid #ddd;background:white;border-radius:8px;cursor:pointer;font-size:0.85rem">编辑</button>
+                                    <button onclick="deleteItem('${item.id}')" style="padding:6px 16px;border:1px solid #FFD5D3;background:white;color:#B22F2A;border-radius:8px;cursor:pointer;font-size:0.85rem">删除</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('') + '</div>';
+                })
+                .catch(err => {
+                    listEl.innerHTML = '<p style="color:#B22F2A;text-align:center;padding:40px">加载失败: ' + err.message + '</p>';
+                });
+        }
+
+        function editItem(id) {
+            // 根据当前类型切换到对应标签页
+            const tabMap = {post: 'post', photo: 'photo', travel: 'travel', project: 'project', zhai: 'zhai'};
+            switchTab(tabMap[manageTab] || 'post');
+            showMsg('请手动修改内容后重新提交（编辑功能开发中...）', 'success');
+        }
+
+        function deleteItem(id) {
+            const typeName = manageTypeNames[manageTab] || manageTab;
+            if (!confirm(`确定删除这条${typeName}吗？此操作不可恢复。`)) return;
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '删除中...';
+            fetch('/api/content?type=' + manageTab, {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'id=' + encodeURIComponent(id)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showMsg(data.error, 'error');
+                } else {
+                    showMsg(data.message || '已删除', 'success');
+                    loadManageList();
+                    loadStats();
+                }
+            })
+            .catch(err => showMsg('删除失败: ' + err.message, 'error'))
+            .finally(() => { btn.disabled = false; btn.textContent = '删除'; });
+        }
 
         // Git 状态
         function loadGitStatus() {
@@ -1114,7 +1352,7 @@ link: "{link}"
             msg.className = 'msg';
             msg.style.display = 'none';
 
-            fetch('/api/' + type, {
+            fetch('/api/post', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: params.toString()
