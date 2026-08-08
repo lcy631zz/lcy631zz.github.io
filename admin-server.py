@@ -37,8 +37,12 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             title = params.get('title', [''])[0].strip()
             content_type = params.get('type', [''])[0]
 
-            if not title or not content_type:
-                self.send_json({'error': '标题和类型不能为空'}, 400)
+            if not content_type:
+                self.send_json({'error': '请选择发布类型'}, 400)
+                return
+
+            if content_type in ('post', 'project') and not title:
+                self.send_json({'error': '标题不能为空'}, 400)
                 return
 
             if content_type == 'post':
