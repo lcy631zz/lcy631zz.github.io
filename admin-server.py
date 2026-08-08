@@ -68,6 +68,9 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(self.git_publish())
         elif self.path == '/api/git/rollback':
             self.send_json(self.git_rollback())
+        elif self.path == '/api/upload':
+            result = self.handle_upload()
+            self.send_json(result)
         else:
             self.send_response(404)
             self.end_headers()
@@ -173,8 +176,74 @@ tags: {tags_yaml}
 
         return {'success': True, 'file': filepath, 'title': safe_title}
 
+    def handle_upload(self):
+        """Handle file upload via multipart/form-data, save to static/img/"""
+        content_type = self.headers.get('Content-Type', '')
+        if not content_type.startswith('multipart/form-data'):
+            return {'error': '请上传文件'}
+        content_len = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_len)
+
+        # Extract filename from multipart body
+        import re
+        m = re.search(rb'filename="([^"]+)"', body)
+        if not m:
+            return {'error': '未找到文件'}
+        filename = m.group(1).decode('utf-8', errors='replace')
+
+        # Only allow image files
+        if not any(filename.lower().endswith(ext) for ext in ('.jpg', '.jpeg', '.png', '.gif', '.webp')):
+            return {'error': '仅支持 jpg、png、gif、webp 格式'}
+
+        # Sanitize filename: keep only name + extension
+        import os as os_mod
+        basename = os_mod.path.basename(filename)
+        # Remove special chars, keep extension
+        name, ext = os_mod.path.splitext(basename)
+        safe_name = ''.join(c for c in name if c.isalnum() or c in '-_ ') + ext.lower()
+        if not safe_name or len(safe_name) < 2:
+            safe_name = 'upload' + ext.lower()
+
+        # Find the boundary to extract file data
+        boundary = content_type.split('boundary=')[1].strip()
+        parts = body.split(('--' + boundary).encode())
+        file_data = None
+        for part in parts:
+            if b'filename=' in part:
+                # Find the start of file data after headers
+                idx = part.find(b'\r\n\r\n')
+                if idx >= 0:
+                    file_data = part[idx + 4:]
+                    # Remove trailing boundary marker
+                    if file_data.endswith(b'\r\n'):
+                        file_data = file_data[:-2]
+                    if file_data.endswith(b'--'):
+                        file_data = file_data[:-1]
+                    if file_data.endswith(b'\r\n'):
+                        file_data = file_data[:-2]
+                    break
+
+        if not file_data:
+            return {'error': '读取文件内容失败'}
+
+        # Save to static/img/
+        img_dir = os_mod.join(BLOG_DIR, 'static', 'img')
+        os_mod.makedirs(img_dir, exist_ok=True)
+        save_path = os_mod.join(img_dir, safe_name)
+        # Avoid overwriting existing files
+        if os_mod.exists(save_path):
+            name, ext = os_mod.splitext(safe_name)
+            save_path = os_mod.join(img_dir, name + '_' + ext)
+
+        with open(save_path, 'wb') as f:
+            f.write(file_data)
+
+        web_path = 'img/' + os_mod.basename(save_path)
+        return {'success': True, 'path': web_path, 'filename': os_mod.basename(save_path)}
+
     def _normalize_img_path(self, path):
         """Convert any path format to web path like img/filename.ext"""
+        path = path.strip().strip('"').strip("'")
         # Already a clean web path
         if path.startswith('img/') or path.startswith('/img/'):
             return path.lstrip('/')
@@ -978,19 +1047,23 @@ link: "{link}"
             <h2>添加二次元照片</h2>
             <p class="desc">添加你喜欢的角色插画或截图到「荫」板块。</p>
             <div class="help-text">
-                <h3>第一步：准备图片</h3>
-                <p>把图片文件放到博客的 <code>static/img/</code> 目录下。</p>
+                <h3>第一步：选择图片</h3>
+                <p>从你的电脑选择一张图片，或者把图片文件放到博客的 <code>static/img/</code> 目录后手动输入路径。</p>
                 <ul>
                     <li>支持格式：jpg、png、gif、webp</li>
                     <li>建议大小：不超过 2MB</li>
-                    <li>你可以用文件管理器直接复制粘贴到这里</li>
                 </ul>
             </div>
             <form onsubmit="return submitForm(event, 'photo')">
                 <div class="form-group">
+                    <label>上传图片</label>
+                    <input type="file" name="upload_file" id="photoUpload" accept="image/*" style="padding:8px">
+                    <p class="hint" id="photoUploadStatus">选择文件后自动上传</p>
+                </div>
+                <div class="form-group">
                     <label>图片路径 <span class="required">*</span></label>
-                    <input type="text" name="img_path" placeholder="例如：static/img/anime-character.jpg" required>
-                    <p class="hint">相对于博客根目录的路径</p>
+                    <input type="text" name="img_path" id="photoImgPath" placeholder="例如：img/anime-character.jpg" required>
+                    <p class="hint">上传图片后自动填写，也可手动输入</p>
                 </div>
                 <div class="form-group">
                     <label>图片说明</label>
@@ -1015,8 +1088,14 @@ link: "{link}"
             </div>
             <form onsubmit="return submitForm(event, 'travel')">
                 <div class="form-group">
+                    <label>上传图片</label>
+                    <input type="file" name="upload_file" id="travelUpload" accept="image/*" style="padding:8px">
+                    <p class="hint" id="travelUploadStatus">选择文件后自动上传</p>
+                </div>
+                <div class="form-group">
                     <label>图片路径 <span class="required">*</span></label>
-                    <input type="text" name="img_path" placeholder="例如：static/img/tokyo-tower.jpg" required>
+                    <input type="text" name="img_path" id="travelImgPath" placeholder="例如：img/tokyo-tower.jpg" required>
+                    <p class="hint">上传图片后自动填写，也可手动输入</p>
                 </div>
                 <div class="form-group">
                     <label>地点</label>
@@ -1092,8 +1171,11 @@ link: "{link}"
                     <input type="text" name="note" placeholder="例如：最喜欢的诗句">
                 </div>
                 <div class="form-group">
-                    <label>配图路径</label>
-                    <input type="text" name="img" placeholder="例如：static/img/zhai-cover.jpg（可选）">
+                    <label>配图</label>
+                    <input type="file" name="upload_file" id="zhaiUpload" accept="image/*" style="padding:8px">
+                    <p class="hint" id="zhaiUploadStatus">选择文件后自动上传（可选）</p>
+                    <label style="margin-top:8px">或手动输入路径</label>
+                    <input type="text" name="img" id="zhaiImgPath" placeholder="例如：img/zhai-cover.jpg">
                 </div>
                 <button type="submit" class="btn-submit" id="btn-zhai">添加摘抄</button>
             </form>
@@ -1142,6 +1224,44 @@ link: "{link}"
             if (d2 && d2.type === 'date' && !d2.value) d2.value = today;
         }
         setDefaultDate();
+
+        // 文件上传处理
+        function handleUpload(inputEl, statusId, pathInputId) {
+            const file = inputEl.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById(statusId);
+            statusEl.textContent = '上传中...';
+            statusEl.style.color = '#D4342F';
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('/api/upload', { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.path) {
+                        document.getElementById(pathInputId).value = data.path;
+                        statusEl.textContent = '已上传: ' + data.filename;
+                        statusEl.style.color = '#3D8B6E';
+                    } else {
+                        statusEl.textContent = '上传失败: ' + (data.error || '未知错误');
+                        statusEl.style.color = '#B22F2A';
+                    }
+                })
+                .catch(err => {
+                    statusEl.textContent = '上传失败: ' + err.message;
+                    statusEl.style.color = '#B22F2A';
+                });
+        }
+
+        // Bind file upload listeners
+        document.getElementById('photoUpload')?.addEventListener('change', function() {
+            if (this.files[0]) handleUpload(this, 'photoUploadStatus', 'photoImgPath');
+        });
+        document.getElementById('travelUpload')?.addEventListener('change', function() {
+            if (this.files[0]) handleUpload(this, 'travelUploadStatus', 'travelImgPath');
+        });
+        document.getElementById('zhaiUpload')?.addEventListener('change', function() {
+            if (this.files[0]) handleUpload(this, 'zhaiUploadStatus', 'zhaiImgPath');
+        });
 
         // 内容管理
         let manageTab = 'post';
