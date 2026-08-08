@@ -305,7 +305,7 @@ link: "{link}"
         }
 
     def git_log(self, n=5):
-        r = self._git(['log', f'--oneline', f'-n', str(n), '--', '--no-merits'])
+        r = self._git(['log', f'--oneline', f'-n', str(n)])
         if r['rc'] != 0:
             return {'error': r['stderr'] or 'git log failed'}
         entries = []
