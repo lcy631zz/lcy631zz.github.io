@@ -315,21 +315,28 @@ link: "{link}"
         return {'entries': entries}
 
     def git_publish(self):
+        steps = []
         r = self._git(['add', '-A'])
         if r['rc'] != 0:
-            return {'error': 'git add 失败: ' + r['stderr']}
+            return {'error': 'git add 失败: ' + r['stderr'], 'steps': steps}
+        steps.append('已添加所有文件到暂存区')
+
         r = self._git(['diff', '--cached', '--quiet'])
         if r['rc'] == 0:
-            return {'success': True, 'message': '没有需要提交的修改', 'skipped': True}
+            return {'success': True, 'message': '没有需要提交的修改', 'skipped': True, 'steps': steps + ['没有检测到修改']}
+
         now = datetime.now().strftime('%Y-%m-%d %H:%M')
         msg = f'update from admin panel {now}'
         r = self._git(['commit', '-m', msg])
         if r['rc'] != 0:
-            return {'error': 'git commit 失败: ' + r['stderr']}
+            return {'error': 'git commit 失败: ' + r['stderr'], 'steps': steps}
+        steps.append(f'已提交: {msg}')
+
         r = self._git(['push', 'origin', 'master'])
         if r['rc'] != 0:
-            return {'error': 'git push 失败: ' + r['stderr'], 'committed': True}
-        return {'success': True, 'message': '发布成功！', 'committed': True, 'pushed': True}
+            return {'error': 'git push 失败: ' + r['stderr'], 'committed': True, 'steps': steps}
+        steps.append('已推送到 GitHub')
+        return {'success': True, 'message': '发布成功！', 'committed': True, 'pushed': True, 'steps': steps}
 
     def git_rollback(self):
         r = self._git(['reset', '--hard', 'HEAD'])
@@ -589,6 +596,77 @@ link: "{link}"
         .btn-rollback:hover { background: #FFF0EF; border-color: #E85D57; }
         .btn-rollback:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        .git-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: 0;
+        }
+        .git-detail.open {
+            max-height: 400px;
+            margin-top: 12px;
+        }
+        .git-detail-inner {
+            background: #f8f8f8;
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #e8e8e8;
+        }
+        .git-detail-inner h4 {
+            font-size: 0.85rem;
+            color: #8E8EA0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .git-file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .git-file-list li {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .git-file-list li:last-child { border-bottom: none; }
+        .git-file-status {
+            font-weight: 700;
+            font-size: 0.8rem;
+            min-width: 20px;
+        }
+        .git-file-status.modified { color: #E85D57; }
+        .git-file-status.added { color: #3D8B6E; }
+        .git-file-status.deleted { color: #888; }
+        .git-file-path { color: #333; word-break: break-all; }
+
+        .git-progress {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: #f0f7ff;
+            border-radius: 10px;
+            border: 1px solid #d0e0f0;
+            display: none;
+        }
+        .git-progress.active { display: block; }
+        .git-progress .step {
+            font-size: 0.9rem;
+            color: #5A5A72;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .git-progress .step.done { color: #3D8B6E; }
+        .git-progress .step.active { color: #D4342F; font-weight: 600; }
+        .git-progress .step-icon {
+            font-size: 1rem;
+        }
+
         .help-text {
             background: #FFF5EC;
             border-radius: 12px;
@@ -649,12 +727,23 @@ link: "{link}"
         <div class="git-bar" id="gitBar">
             <div class="git-info">
                 <span class="git-branch" id="gitBranch">分支: 加载中...</span><br>
-                <span class="git-status-text" id="gitStatusText"></span>
+                <span class="git-status-text" id="gitStatusText" style="cursor:pointer" onclick="toggleGitDetail()"></span>
             </div>
             <div class="git-btns">
                 <button class="btn-publish" id="btnPublish" onclick="gitPublish()">🚀 一键发布</button>
                 <button class="btn-rollback" id="btnRollback" onclick="gitRollback()">↩️ 一键回滚</button>
             </div>
+        </div>
+        <!-- 未提交文件详情 -->
+        <div class="git-detail" id="gitDetail">
+            <div class="git-detail-inner">
+                <h4>未提交的文件</h4>
+                <ul class="git-file-list" id="gitFileList"></ul>
+            </div>
+        </div>
+        <!-- 发布进度 -->
+        <div class="git-progress" id="gitProgress">
+            <div id="gitProgressSteps"></div>
         </div>
 
         <!-- 标签切换 -->
@@ -871,9 +960,39 @@ link: "{link}"
                     }
                     if (text) {
                         if (data.hasChanges) {
-                            text.textContent = `有 ${data.count} 个未提交的修改`;
+                            text.textContent = `${data.count} 个未提交修改（点击查看）`;
+                            text.style.cursor = 'pointer';
+                            text.style.color = '#D4342F';
                         } else {
                             text.textContent = '已同步到最新';
+                            text.style.cursor = 'default';
+                            text.style.color = '#8E8EA0';
+                        }
+                    }
+                    // 文件列表
+                    const listEl = document.getElementById('gitFileList');
+                    if (listEl) {
+                        listEl.innerHTML = '';
+                        if (data.files && data.files.length) {
+                            data.files.forEach(f => {
+                                const li = document.createElement('li');
+                                const parts = f.trim().split(/\\s+/, 2);
+                                if (parts.length >= 2) {
+                                    const status = parts[0];
+                                    const path = parts[1];
+                                    let cls = 'modified', label = 'M';
+                                    if (status === 'A') { cls = 'added'; label = '+'; }
+                                    else if (status === 'D') { cls = 'deleted'; label = '−'; }
+                                    else if (status === '??') { cls = 'added'; label = '?'; }
+                                    li.innerHTML = `<span class="git-file-status ${cls}">${label}</span><span class="git-file-path">${path}</span>`;
+                                } else {
+                                    li.textContent = f;
+                                }
+                                listEl.appendChild(li);
+                            });
+                        }
+                        if (!data.hasChanges) {
+                            listEl.innerHTML = '<li style="color:#8E8EA0">暂无修改</li>';
                         }
                     }
                 })
@@ -882,22 +1001,63 @@ link: "{link}"
         loadGitStatus();
         setInterval(loadGitStatus, 10000);
 
+        function toggleGitDetail() {
+            const el = document.getElementById('gitDetail');
+            if (el) el.classList.toggle('open');
+        }
+
+        function showProgress(steps) {
+            const container = document.getElementById('gitProgress');
+            const stepsEl = document.getElementById('gitProgressSteps');
+            container.classList.add('active');
+            stepsEl.innerHTML = steps.map(s =>
+                `<div class="step ${s.done ? 'done' : (s.active ? 'active' : '')}"><span class="step-icon">${s.done ? '✅' : (s.active ? '⏳' : '⬜')}</span>${s.text}</div>`
+            ).join('');
+        }
+
+        function hideProgress() {
+            const container = document.getElementById('gitProgress');
+            if (container) container.classList.remove('active');
+        }
+
         // 一键发布
         function gitPublish() {
             const btn = document.getElementById('btnPublish');
             btn.disabled = true;
-            btn.textContent = '发布中...';
+            showProgress([
+                {text: '添加文件到暂存区...', active: true, done: false},
+                {text: '提交变更...', active: false, done: false},
+                {text: '推送到 GitHub...', active: false, done: false}
+            ]);
             fetch('/api/git/publish', {method: 'POST'})
                 .then(r => r.json())
                 .then(data => {
                     if (data.error) {
                         showMsg(data.error, 'error');
+                        hideProgress();
                     } else {
-                        showMsg(data.message || '发布完成！', 'success');
+                        const steps = data.steps || [];
+                        showProgress(steps.map((s, i) => ({
+                            text: s,
+                            done: i < steps.length,
+                            active: i === steps.length
+                        })));
+                        if (!data.skipped) {
+                            setTimeout(() => {
+                                hideProgress();
+                                showMsg(data.message || '发布完成！', 'success');
+                            }, 1200);
+                        } else {
+                            hideProgress();
+                            showMsg(data.message || '没有需要提交的修改', 'success');
+                        }
                         loadGitStatus();
                     }
                 })
-                .catch(err => showMsg('发布失败: ' + err.message, 'error'))
+                .catch(err => {
+                    showMsg('发布失败: ' + err.message, 'error');
+                    hideProgress();
+                })
                 .finally(() => { btn.disabled = false; btn.textContent = '🚀 一键发布'; });
         }
 
