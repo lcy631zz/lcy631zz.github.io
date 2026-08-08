@@ -288,15 +288,6 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .page-zhai .section-inner{position:relative;z-index:1}
 .page-zhai .page-divider{background:linear-gradient(90deg,var(--purple),var(--purple-dark))}.page-zhai .page-title{color:var(--red)}
 
-.zhai-daily-quote{margin-top:40px;margin-bottom:36px;padding:36px 40px;background:linear-gradient(135deg,var(--purple-pale) 0%,#F5F0FF 100%);border-radius:var(--r-l);border:1px solid rgba(123,104,174,.15);text-align:center;position:relative;overflow:hidden}
-.zhai-daily-quote::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(123,104,174,.1),transparent 70%);border-radius:50%;pointer-events:none}
-.zdq-header{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px}
-.zdq-icon{font-size:1.4rem}
-.zdq-label{font-size:.85rem;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.08em}
-.zdq-date{font-size:.78rem;color:var(--text3)}
-.zhai-daily-quote .zdq-text{font-family:var(--serif);font-size:1.35rem;line-height:2;color:var(--purple-dark);font-style:italic;margin:0 0 14px;quotes:none}
-.zhai-daily-quote .zdq-source{color:var(--purple);font-size:.9rem;font-style:normal;font-weight:500}
-
 /* Projects list - 灰色 */
 .page-projects{background:linear-gradient(180deg,#FFF 0%,var(--gray-pale) 30%,#EEF0F3 100%);position:relative;overflow:hidden}
 .page-projects::before{content:'';position:absolute;top:-100px;right:-100px;width:350px;height:350px;background:radial-gradient(circle,rgba(107,114,128,.06),transparent 70%);border-radius:50%;pointer-events:none}

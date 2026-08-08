@@ -50,8 +50,7 @@
       "hub_desc": "走过的路，看过的风景",
       "items": []
     },
-    "footer": "用 ❤ 与代码构建 · 2026",
-    "zhai_daily_label": "每日一摘"
+    "footer": "用 ❤ 与代码构建 · 2026"
   },
   "zh-Hant": {
     "site_name": "空間",
@@ -104,8 +103,7 @@
       "hub_desc": "走過的路，看過的風景",
       "items": []
     },
-    "footer": "用 ❤ 與代碼構建 · 2026",
-    "zhai_daily_label": "每日一摘"
+    "footer": "用 ❤ 與代碼構建 · 2026"
   },
   "en": {
     "site_name": "Space",
@@ -158,7 +156,6 @@
       "hub_desc": "Places I've been, sights I've seen",
       "items": []
     },
-    "footer": "Built with ❤ & Code · 2026",
-    "zhai_daily_label": "Daily Quote"
+    "footer": "Built with ❤ & Code · 2026"
   }
 }
