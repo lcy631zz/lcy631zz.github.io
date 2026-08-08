@@ -1585,6 +1585,7 @@ link: "{link}"
         function editItem(id) {
             const tabMap = {post: 'post', photo: 'photo', travel: 'travel', project: 'project', zhai: 'zhai'};
             const type = tabMap[manageTab] || 'post';
+            console.log('[DEBUG] editItem id=' + id + ' manageTab=' + manageTab + ' type=' + type);
             switchTab(type);
             const statusEl = document.getElementById('msg');
             statusEl.className = 'msg';
@@ -1594,19 +1595,25 @@ link: "{link}"
             statusEl.style.display = 'block';
 
             fetch('/api/content?type=' + manageTab + '&id=' + encodeURIComponent(id))
-                .then(r => r.json())
+                .then(r => {
+                    console.log('[DEBUG] fetch content status:', r.status);
+                    return r.json();
+                })
                 .then(data => {
                     statusEl.style.display = 'none';
                     if (data.error) {
+                        console.error('[DEBUG] content error:', data.error);
                         showMsg('加载失败: ' + data.error, 'error');
                         return;
                     }
+                    console.log('[DEBUG] content loaded:', data);
                     editMode = {type: manageTab, id: id};
                     populateForm(type, data);
                     updateFormTitle(type, data);
                 })
                 .catch(err => {
                     statusEl.style.display = 'none';
+                    console.error('[DEBUG] fetch error:', err);
                     showMsg('加载失败: ' + err.message, 'error');
                 });
         }
@@ -1877,7 +1884,14 @@ link: "{link}"
             if (editMode) cancelEdit();
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.form-card').forEach(f => f.classList.remove('active'));
-            event.target.classList.add('active');
+            // Find the tab button that corresponds to this type
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            for (const btn of tabButtons) {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + type + "'")) {
+                    btn.classList.add('active');
+                    break;
+                }
+            }
             document.getElementById('form-' + type).classList.add('active');
         }
 
@@ -1896,31 +1910,45 @@ link: "{link}"
                 params.append(key, value);
             }
 
+            // edit_id → id 映射（更新 API 用 id 字段）
+            if (params.has('edit_id')) {
+                params.set('id', params.get('edit_id'));
+            }
+
             // Determine if we're editing
             const isEdit = editMode && editMode.type === type;
             const apiUrl = isEdit ? '/api/update' : '/api/post';
 
             btn.disabled = true;
+            btn.textContent = '提交中...';
             msg.className = 'msg';
             msg.style.display = 'none';
+
+            console.log('[DEBUG] submitForm type=' + type + ' isEdit=' + isEdit + ' url=' + apiUrl);
+            console.log('[DEBUG] params:', params.toString());
 
             fetch(apiUrl, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: params.toString()
             })
-            .then(r => r.json())
+            .then(r => {
+                console.log('[DEBUG] response status:', r.status);
+                return r.json();
+            })
             .then(data => {
+                console.log('[DEBUG] response data:', data);
                 if (data.error) {
                     msg.className = 'msg error';
                     msg.textContent = data.error;
+                    msg.style.display = 'block';
                 } else {
                     msg.className = 'msg success';
+                    msg.textContent = isEdit ? (data.message || '更新成功！') : '添加成功！';
+                    msg.style.display = 'block';
                     if (isEdit) {
-                        msg.textContent = data.message || '更新成功！';
                         cancelEdit();
                     } else {
-                        msg.textContent = data.success ? '添加成功！' : (data.error || '完成');
                         form.reset();
                     }
                     loadStats();
@@ -1928,8 +1956,10 @@ link: "{link}"
                 }
             })
             .catch(err => {
+                console.error('[DEBUG] fetch error:', err);
                 msg.className = 'msg error';
                 msg.textContent = '出错了：' + err.message;
+                msg.style.display = 'block';
             })
             .finally(() => {
                 btn.disabled = false;
@@ -1940,7 +1970,7 @@ link: "{link}"
                     project: isEdit ? '保存修改' : '添加项目',
                     zhai: isEdit ? '保存修改' : '添加摘抄'
                 };
-                btn.textContent = labels[type];
+                btn.textContent = labels[type] || '提交';
                 if (!isEdit) btn.style.background = '';
             });
 
