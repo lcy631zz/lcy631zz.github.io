@@ -7,8 +7,9 @@
 import http.server
 import json
 import os
+import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime
 from urllib.parse import parse_qs, urlparse
 
 PORT = 8082
@@ -20,6 +21,10 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             self.send_admin_page()
         elif self.path == '/api/data':
             self.send_json(self.get_data())
+        elif self.path == '/api/git/status':
+            self.send_json(self.git_status())
+        elif self.path == '/api/git/log':
+            self.send_json(self.git_log())
         else:
             super().do_GET()
 
@@ -53,6 +58,10 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json(result, 400)
             else:
                 self.send_json(result)
+        elif self.path == '/api/git/publish':
+            self.send_json(self.git_publish())
+        elif self.path == '/api/git/rollback':
+            self.send_json(self.git_rollback())
         else:
             self.send_response(404)
             self.end_headers()
@@ -268,6 +277,69 @@ link: "{link}"
 
         return {'success': True, 'file': filepath, 'title': safe_title}
 
+    def _git(self, args, timeout=30):
+        result = subprocess.run(
+            ['git'] + args, cwd=BLOG_DIR, capture_output=True, text=True, timeout=timeout
+        )
+        out = result.stdout.strip()
+        err = result.stderr.strip()
+        rc = result.returncode
+        return {'rc': rc, 'stdout': out, 'stderr': err}
+
+    def git_status(self):
+        r = self._git(['status', '--short', '--branch'])
+        if r['rc'] != 0:
+            return {'error': r['stderr'] or 'git status failed'}
+        lines = r['stdout'].splitlines() if r['stdout'] else []
+        changed = [l for l in lines if l.strip()]
+        branch = ''
+        for l in lines:
+            if l.startswith('##'):
+                branch = l
+                break
+        return {
+            'branch': branch or 'unknown',
+            'hasChanges': len(changed) > 0,
+            'count': len(changed),
+            'files': changed[:20],
+        }
+
+    def git_log(self, n=5):
+        r = self._git(['log', f'--oneline', f'-n', str(n), '--', '--no-merits'])
+        if r['rc'] != 0:
+            return {'error': r['stderr'] or 'git log failed'}
+        entries = []
+        for line in r['stdout'].splitlines():
+            parts = line.split(' ', 1)
+            entries.append({'hash': parts[0], 'msg': parts[1] if len(parts) > 1 else ''})
+        return {'entries': entries}
+
+    def git_publish(self):
+        r = self._git(['add', '-A'])
+        if r['rc'] != 0:
+            return {'error': 'git add 失败: ' + r['stderr']}
+        r = self._git(['diff', '--cached', '--quiet'])
+        if r['rc'] == 0:
+            return {'success': True, 'message': '没有需要提交的修改', 'skipped': True}
+        now = datetime.now().strftime('%Y-%m-%d %H:%M')
+        msg = f'update from admin panel {now}'
+        r = self._git(['commit', '-m', msg])
+        if r['rc'] != 0:
+            return {'error': 'git commit 失败: ' + r['stderr']}
+        r = self._git(['push', 'origin', 'master'])
+        if r['rc'] != 0:
+            return {'error': 'git push 失败: ' + r['stderr'], 'committed': True}
+        return {'success': True, 'message': '发布成功！', 'committed': True, 'pushed': True}
+
+    def git_rollback(self):
+        r = self._git(['reset', '--hard', 'HEAD'])
+        if r['rc'] != 0:
+            return {'error': 'git reset 失败: ' + r['stderr']}
+        r = self._git(['clean', '-fd'])
+        if r['rc'] != 0:
+            return {'error': 'git clean 失败: ' + r['stderr']}
+        return {'success': True, 'message': '已回滚到上一次提交的状态'}
+
     def send_admin_page(self):
         html = '''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -451,6 +523,72 @@ link: "{link}"
             border: 1px solid #FFD5D3;
         }
 
+        .git-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .git-bar .git-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .git-bar .git-branch {
+            font-weight: 600;
+            color: #5A5A72;
+            font-size: 0.9rem;
+        }
+        .git-bar .git-status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .git-bar .git-status-dot.clean { background: #3D8B6E; }
+        .git-bar .git-status-dot.dirty { background: #E85D57; }
+        .git-bar .git-status-text {
+            font-size: 0.85rem;
+            color: #8E8EA0;
+        }
+        .git-bar .git-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-publish {
+            padding: 10px 28px;
+            background: linear-gradient(135deg, #D4342F, #E85D57);
+            color: white;
+            border: none;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(212,52,47,0.3);
+        }
+        .btn-publish:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(212,52,47,0.4); }
+        .btn-publish:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-rollback {
+            padding: 10px 28px;
+            background: white;
+            color: #B22F2A;
+            border: 2px solid #FFD5D3;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-rollback:hover { background: #FFF0EF; border-color: #E85D57; }
+        .btn-rollback:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .help-text {
             background: #FFF5EC;
             border-radius: 12px;
@@ -506,6 +644,18 @@ link: "{link}"
 
         <!-- 消息提示 -->
         <div class="msg" id="msg"></div>
+
+        <!-- Git 操作栏 -->
+        <div class="git-bar" id="gitBar">
+            <div class="git-info">
+                <span class="git-branch" id="gitBranch">分支: 加载中...</span><br>
+                <span class="git-status-text" id="gitStatusText"></span>
+            </div>
+            <div class="git-btns">
+                <button class="btn-publish" id="btnPublish" onclick="gitPublish()">🚀 一键发布</button>
+                <button class="btn-rollback" id="btnRollback" onclick="gitRollback()">↩️ 一键回滚</button>
+            </div>
+        </div>
 
         <!-- 标签切换 -->
         <div class="tabs">
@@ -707,6 +857,70 @@ link: "{link}"
             if (d2 && d2.type === 'date' && !d2.value) d2.value = today;
         }
         setDefaultDate();
+
+        // Git 状态
+        function loadGitStatus() {
+            fetch('/api/git/status')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('gitBranch').textContent = data.branch || '未知分支';
+                    const dot = document.querySelector('.git-status-dot');
+                    const text = document.getElementById('gitStatusText');
+                    if (dot) {
+                        dot.className = 'git-status-dot ' + (data.hasChanges ? 'dirty' : 'clean');
+                    }
+                    if (text) {
+                        if (data.hasChanges) {
+                            text.textContent = `有 ${data.count} 个未提交的修改`;
+                        } else {
+                            text.textContent = '已同步到最新';
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+        loadGitStatus();
+        setInterval(loadGitStatus, 10000);
+
+        // 一键发布
+        function gitPublish() {
+            const btn = document.getElementById('btnPublish');
+            btn.disabled = true;
+            btn.textContent = '发布中...';
+            fetch('/api/git/publish', {method: 'POST'})
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        showMsg(data.error, 'error');
+                    } else {
+                        showMsg(data.message || '发布完成！', 'success');
+                        loadGitStatus();
+                    }
+                })
+                .catch(err => showMsg('发布失败: ' + err.message, 'error'))
+                .finally(() => { btn.disabled = false; btn.textContent = '🚀 一键发布'; });
+        }
+
+        // 一键回滚
+        function gitRollback() {
+            if (!confirm('确定要回滚吗？这将丢弃所有未提交的修改，恢复到上一次发布的版本。')) return;
+            const btn = document.getElementById('btnRollback');
+            btn.disabled = true;
+            btn.textContent = '回滚中...';
+            fetch('/api/git/rollback', {method: 'POST'})
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        showMsg(data.error, 'error');
+                    } else {
+                        showMsg(data.message || '已回滚', 'success');
+                        loadGitStatus();
+                        loadStats();
+                    }
+                })
+                .catch(err => showMsg('回滚失败: ' + err.message, 'error'))
+                .finally(() => { btn.disabled = false; btn.textContent = '↩️ 一键回滚'; });
+        }
 
         // 标签切换
         function switchTab(type) {
