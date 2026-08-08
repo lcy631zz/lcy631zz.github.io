@@ -71,6 +71,17 @@
     },
     {
       "img": "img/mount.jpg"
+    },
+    {
+      "img": "img/englishbook.jpg"
+    },
+    {
+      "img": "img/disney.jpg"
+    },
+    {
+      "img": "img/psbook.jpg",
+      "place": "丹霞",
+      "caption": "ps"
     }
   ]
 }
