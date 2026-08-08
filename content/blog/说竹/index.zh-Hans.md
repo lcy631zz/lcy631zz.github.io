@@ -1,6 +1,6 @@
 ---
 title: "说竹"
-date: 2026-08-08
+date: "2026-08-08"
 period: "高考后"
 description: ""
 tags: []
