@@ -169,7 +169,7 @@ function renderYinGrid() {
         const cap = (y.caption || '').replace(/'/g, "\\'");
         const src = absPath(y.img);
         return '<div class="yin-item fi" onclick="openLightbox(\'' + src + '\',\'' + cap + '\')">' +
-            '<img src="' + src + '" alt="' + (y.caption || '') + '" loading="lazy">' +
+            '<img src="' + src + '" alt="' + (y.caption || '') + '" loading="lazy" decoding="async">' +
             (y.caption ? '<div class="yin-caption">' + y.caption + '</div>' : '') +
             '</div>';
     }).join('');
@@ -190,7 +190,7 @@ function renderXingGrid() {
         const cap = (x.caption || '').replace(/'/g, "\\'");
         const src = absPath(x.img);
         return '<div class="xing-item fi" onclick="openLightbox(\'' + src + '\',\'' + cap + '\')">' +
-            '<img src="' + src + '" alt="' + (x.caption || '') + '" loading="lazy">' +
+            '<img src="' + src + '" alt="' + (x.caption || '') + '" loading="lazy" decoding="async">' +
             (x.place ? '<div class="xing-place">' + x.place + '</div>' : '') +
             (x.caption ? '<div class="xing-caption">' + x.caption + '</div>' : '') +
             '</div>';

@@ -3,8 +3,15 @@
     const cv=document.getElementById('cv');
     if(!cv)return; // No canvas on this page
     const cx=cv.getContext('2d'),P=[],F=[];
+    let running=true;
     function rs(){cv.width=cv.parentElement.offsetWidth;cv.height=cv.parentElement.offsetHeight}
     rs();window.addEventListener('resize',rs);
+    // Pause animation when not visible (mobile perf)
+    if('IntersectionObserver' in window){
+        new IntersectionObserver(entries=>{
+            running=entries[0].isIntersecting;
+        },{threshold:0}).observe(cv);
+    }
     function R(a,b){return Math.random()*(b-a)+a}
     function rc(){const c=['#64B5F6','#81D4FA','#B39DDB','#CE93D8','#80DEEA','#FFF176','#FFAB91','#A5D6A7','#F48FB1'];return c[Math.floor(Math.random()*c.length)]}
     function d(x1,y1,x2,y2){return Math.sqrt((x2-x1)**2+(y2-y1)**2)}
@@ -15,6 +22,6 @@
     cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;ma=true});
     cv.addEventListener('mouseleave',()=>{ma=false});
     cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top,c=rc();for(let i=0;i<40;i++)F.push(new P2(x,y,c))});
-    function ani(){cx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.up(mx,my,ma);p.dr()});F.forEach((f,i)=>{f.up();f.dr();if(f.dead)F.splice(i,1)});requestAnimationFrame(ani)}
+    function ani(){if(running){cx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.up(mx,my,ma);p.dr()});F.forEach((f,i)=>{f.up();f.dr();if(f.dead)F.splice(i,1)})}requestAnimationFrame(ani)}
     init();ani();window.addEventListener('resize',init);
 })();
