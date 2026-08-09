@@ -46,11 +46,17 @@ function absPath(p) {
 
 /* Open lightbox */
 function openLightbox(img, cap) {
-    const lbImg = $('lbImg'), lbCap = $('lbCap'), lb = $('lightbox');
+    const lbImg = $('lbImg'), lbCap = $('lbCap'), lbHint = $('lbHint'), lb = $('lightbox');
     if (lbImg) lbImg.src = img || '';
     if (lbCap) lbCap.textContent = cap || '';
     if (lb) lb.classList.add('show');
     document.body.style.overflow = 'hidden';
+
+    // Show pinch-to-zoom hint on touch devices
+    if (lbHint && ('ontouchstart' in window)) {
+        lbHint.style.display = 'block';
+        setTimeout(() => { lbHint.style.display = 'none'; }, 3200);
+    }
 }
 
 function render() {
@@ -73,7 +79,6 @@ function render() {
         setText('hTHL2', d.hero?.title_hl2);
         setText('hT4', d.hero?.title_4);
         setText('hSub', d.hero?.subtitle);
-        setText('sHint', lang === 'en' ? 'Scroll Down' : '向下探索');
         setText('hubAboutTitle', d.about?.name);
         setText('hubArtTitle', d.articles?.title);
         setText('hubArtDesc', d.articles?.hub_desc || d.articles?.desc);
@@ -369,8 +374,6 @@ document.addEventListener('click', function(e) {
 window.addEventListener('scroll', () => {
     const navbar = $('navbar');
     if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
-    const scrollHint = $('scrollHint');
-    if (scrollHint) scrollHint.classList.toggle('hide', window.scrollY > 200);
 });
 
 /* Keyboard shortcuts */
@@ -380,6 +383,26 @@ document.addEventListener('keydown', e => {
         closeLightbox();
     }
 });
+
+/* Hamburger menu toggle */
+function toggleMenu() {
+    const btn = $('hamburger');
+    const links = $('navLinks');
+    if (!btn || !links) return;
+    btn.classList.toggle('active');
+    links.classList.toggle('show');
+
+    // Close menu when a link is clicked
+    if (links.classList.contains('show')) {
+        links.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', function handler() {
+                links.classList.remove('show');
+                btn.classList.remove('active');
+                links.querySelectorAll('a').forEach(l => l.removeEventListener('click', handler));
+            });
+        });
+    }
+}
 
 /* Load on DOM ready */
 if (document.readyState === 'loading') {

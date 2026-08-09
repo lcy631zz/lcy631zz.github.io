@@ -12,9 +12,11 @@
     <div class="nav-inner">
         <div class="nav-left">
             <a href="/" class="logo"><span class="logo-icon">✿</span><span id="siteName">{{ i18n "site_name" | default .Site.Title }}</span></a>
-
+            <button class="hamburger" id="hamburger" aria-label="菜单" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </button>
         </div>
-        <ul class="nav-links">
+        <ul class="nav-links" id="navLinks">
             <li><a href="/about/">我</a></li>
             <li><a href="/blog/">文</a></li>
             <li><a href="/zhai/">摘</a></li>
@@ -33,6 +35,7 @@
     <div class="lightbox-content">
         <img class="lightbox-img" id="lbImg" src alt>
         <div class="lightbox-caption" id="lbCap"></div>
+        <div class="lightbox-hint" id="lbHint" style="display:none">双指缩放查看原图</div>
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
     </div>
 </div>

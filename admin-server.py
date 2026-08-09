@@ -17,7 +17,13 @@ BLOG_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class AdminHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/admin' or self.path == '/admin/':
+        if self.path == '/' or self.path == '/index.html':
+            self.send_pwa_page()
+        elif self.path == '/manifest.json':
+            self.send_static_file('admin/manifest.json', 'application/json')
+        elif self.path == '/sw.js':
+            self.send_static_file('admin/sw.js', 'application/javascript')
+        elif self.path == '/admin' or self.path == '/admin/':
             self.send_admin_page()
         elif self.path == '/api/data':
             self.send_json(self.get_data())
@@ -29,6 +35,22 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(self.handle_content())
         else:
             super().do_GET()
+
+    def send_static_file(self, rel_path, content_type):
+        """Serve a static file from the blog directory"""
+        abs_path = os.path.join(BLOG_DIR, rel_path)
+        try:
+            with open(abs_path, 'rb') as f:
+                data = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', content_type)
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+        except FileNotFoundError:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b'Not Found')
 
     def do_POST(self):
         if self.path == '/api/post':
@@ -864,6 +886,98 @@ link: "{link}"
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return {'success': True, 'message': '已删除摘抄'}
+
+    def send_pwa_page(self):
+        """Serve the PWA wrapper page for mobile app experience"""
+        html = '''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#D4342F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="写博客">
+    <title>博客编辑器</title>
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; font-family: -apple-system, 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+        #app { display: flex; flex-direction: column; height: 100%; }
+        .top-bar {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 16px; background: linear-gradient(135deg, #D4342F, #E85D57);
+            color: #fff; flex-shrink: 0; position: relative;
+        }
+        .top-bar h1 { font-size: 1rem; font-weight: 600; }
+        .top-bar .install-hint {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            font-size: .72rem; opacity: .85; cursor: pointer;
+            background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 100px;
+            border: none; color: #fff;
+        }
+        iframe { flex: 1; width: 100%; border: none; background: #fff; }
+        .loading {
+            display: flex; align-items: center; justify-content: center; height: 100%;
+            color: #8E8EA0; font-size: .95rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="top-bar">
+            <h1>✿ 博客编辑器</h1>
+            <button class="install-hint" id="installBtn" style="display:none" onclick="installApp()">安装应用</button>
+        </div>
+        <iframe id="adminFrame" src="./admin/" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
+        <div class="loading" id="loading">加载中...</div>
+    </div>
+
+    <script>
+        const frame = document.getElementById('adminFrame');
+        const loading = document.getElementById('loading');
+
+        frame.addEventListener('load', function() {
+            loading.style.display = 'none';
+        });
+
+        frame.addEventListener('error', function() {
+            loading.textContent = '加载失败，请刷新重试';
+        });
+
+        // Hide loading after 5s timeout
+        setTimeout(() => { loading.style.display = 'none'; }, 5000);
+
+        // ── PWA Install Prompt ──
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+
+        // ── Service Worker Registration ──
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('SW registered'))
+                .catch(err => console.log('SW registration failed:', err));
+        }
+    </script>
+</body>
+</html>'''
+        self.send_html(html)
 
     def send_admin_page(self):
         template_path = os.path.join(BLOG_DIR, 'admin', 'template.html')
