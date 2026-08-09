@@ -46,7 +46,14 @@ fi
 
 echo "  管理面板: $URL"
 echo ""
-echo "  提示：在 Windows 浏览器访问可能需要使用 WSL IP"
+LOCAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+if [ -n "$LOCAL_IP" ]; then
+    echo "  手机访问: http://$LOCAL_IP:$PORT/admin （需同一 WiFi）"
+    echo ""
+fi
+echo "  提示：如果手机无法访问，可能需要在 Windows 中转发端口"
+echo "  Windows CMD 执行: netsh interface portproxy add v4tov4 listenport=$PORT listenaddress=0.0.0.0 connectport=$PORT connectaddress=127.0.0.1"
+echo ""
 echo "  按 Ctrl+C 停止服务"
 echo ""
 

@@ -894,7 +894,19 @@ def main():
         print("")
         print("  ✿ 博客管理面板已启动")
         print("")
-        print(f"  在浏览器打开: http://localhost:{port}/admin")
+        print(f"  电脑访问: http://localhost:{port}/admin")
+
+        # Try to detect local IP for mobile access
+        try:
+            import socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            s.close()
+            print(f"  手机访问: http://{local_ip}:{port}/admin （需同一 WiFi）")
+        except Exception:
+            print(f"  手机访问: http://<电脑IP>:{port}/admin （需同一 WiFi）")
+
         print("")
         print("  按 Ctrl+C 停止服务")
         print("")
