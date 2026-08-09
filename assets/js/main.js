@@ -381,6 +381,25 @@ document.addEventListener('keydown', e => {
     }
 });
 
+/* Theme toggle icon update */
+function updateThemeIcon() {
+    const btn = document.getElementById('appearance-switcher');
+    if (!btn) return;
+    const icon = btn.querySelector('.theme-icon');
+    if (!icon) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    icon.textContent = isDark ? '🌙' : '☀️';
+    btn.title = isDark ? '切换亮色模式' : '切换暗色模式';
+}
+
+// Update icon on load and when theme changes
+document.addEventListener('DOMContentLoaded', updateThemeIcon);
+if (document.readyState !== 'loading') updateThemeIcon();
+
+// Observe theme changes (Congo's appearance.js toggles 'dark' class)
+const themeObserver = new MutationObserver(updateThemeIcon);
+themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
 /* Load on DOM ready */
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadContent);

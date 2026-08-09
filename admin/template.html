@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>博客管理面板</title>
+    <style>
+        :root {
+            --primary: #D4342F; --primary-light: #E85D57; --primary-bg: #FFF0EF;
+            --green: #3D8B6E; --green-bg: #E8F5EE; --green-border: #A8D5BA;
+            --orange: #E8780A; --orange-bg: #FFF5EC;
+            --bg: #f5f5f5; --card: #fff; --border: #e8e8e8;
+            --text: #1A1A2E; --text2: #5A5A72; --text3: #8E8EA0;
+            --radius: 14px; --radius-sm: 10px;
+            --shadow: 0 2px 12px rgba(0,0,0,.06);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6;
+            padding-bottom: calc(80px + var(--safe-bottom));
+        }
+
+        /* ── Header ── */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff; padding: 28px 20px 24px; text-align: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+        .header p { opacity: .85; font-size: .88rem; }
+
+        /* ── Container ── */
+        .container { max-width: 860px; margin: 0 auto; padding: 20px 16px; }
+
+        /* ── Stats ── */
+        .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); border-radius: var(--radius-sm); padding: 14px 4px; text-align: center; box-shadow: var(--shadow); }
+        .stat-card .num { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .stat-card .label { font-size: .72rem; color: var(--text3); margin-top: 2px; }
+
+        /* ── Git Bar ── */
+        .git-bar {
+            background: var(--card); border-radius: var(--radius); padding: 16px;
+            box-shadow: var(--shadow); margin-bottom: 20px;
+        }
+        .git-info { margin-bottom: 12px; }
+        .git-branch { font-weight: 600; color: var(--text2); font-size: .88rem; }
+        .git-status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .git-status-dot.clean { background: var(--green); }
+        .git-status-dot.dirty { background: var(--primary-light); }
+        .git-status-text { font-size: .82rem; cursor: pointer; }
+        .git-btns { display: flex; gap: 8px; }
+        .btn-publish, .btn-rollback {
+            flex: 1; padding: 12px; border: none; border-radius: 100px;
+            font-size: .92rem; font-weight: 600; cursor: pointer; text-align: center;
+        }
+        .btn-publish { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; box-shadow: 0 4px 16px rgba(212,52,47,.3); }
+        .btn-rollback { background: var(--card); color: var(--primary); border: 2px solid var(--primary-bg); }
+        .btn-publish:active, .btn-rollback:active { opacity: .7; transform: scale(.98); }
+
+        /* ── Git Detail (collapsible) ── */
+        .git-detail { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+        .git-detail.open { max-height: 400px; margin-top: 12px; }
+        .git-detail-inner { background: #f8f8f8; border-radius: var(--radius-sm); padding: 14px; border: 1px solid var(--border); }
+        .git-file-list { list-style: none; }
+        .git-file-list li { padding: 6px 0; font-size: .82rem; font-family: 'Courier New', monospace; border-bottom: 1px solid #eee; display: flex; gap: 8px; }
+        .git-file-list li:last-child { border-bottom: none; }
+        .git-file-status { font-weight: 700; min-width: 18px; }
+        .git-file-status.modified { color: var(--primary-light); }
+        .git-file-status.added { color: var(--green); }
+        .git-file-status.deleted { color: #888; }
+
+        /* ── Progress ── */
+        .git-progress { display: none; margin-top: 12px; padding: 14px; background: #f0f7ff; border-radius: var(--radius-sm); border: 1px solid #d0e0f0; }
+        .git-progress.active { display: block; }
+        .git-progress .step { padding: 5px 0; font-size: .88rem; }
+
+        /* ── Tabs (desktop) ── */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            padding: 10px 20px; border: 2px solid var(--border); background: var(--card);
+            border-radius: 100px; cursor: pointer; font-size: .9rem; font-weight: 500;
+            transition: all .2s; color: var(--text2); white-space: nowrap; flex-shrink: 0;
+        }
+        .tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        /* ── Form Cards ── */
+        .form-card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); display: none; }
+        .form-card.active { display: block; animation: fadeIn .25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .form-card h2 { font-size: 1.2rem; margin-bottom: 6px; color: var(--text); }
+        .form-card .desc { color: var(--text3); font-size: .88rem; margin-bottom: 20px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text2); font-size: .88rem; }
+        .form-group label .required { color: var(--primary); }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 14px 16px; border: 2px solid var(--border);
+            border-radius: var(--radius-sm); font-size: 1rem; font-family: inherit;
+            transition: border-color .2s; background: #fafafa; -webkit-appearance: none;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: #fff; }
+        .form-group textarea { min-height: 200px; resize: vertical; line-height: 1.8; }
+        .form-group .hint { font-size: .8rem; color: var(--text3); margin-top: 4px; }
+        .btn-submit {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff; border: none; border-radius: 100px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; box-shadow: 0 4px 16px rgba(212,52,47,.3);
+        }
+        .btn-submit:active { opacity: .85; transform: scale(.98); }
+        .btn-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        /* ── Messages ── */
+        .msg { padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 20px; display: none; font-size: .92rem; }
+        .msg.success { display: block; background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+        .msg.error { display: block; background: var(--primary-bg); color: var(--primary); border: 1px solid #FFD5D3; }
+
+        /* ── Help box ── */
+        .help-text { background: var(--orange-bg); border-radius: var(--radius-sm); padding: 18px; margin-bottom: 20px; border: 1px solid #FFE0C0; }
+        .help-text h3 { color: var(--orange); font-size: .95rem; margin-bottom: 6px; }
+        .help-text p, .help-text li { font-size: .88rem; color: #7A5C3E; }
+        .help-text ul { padding-left: 18px; margin-top: 6px; }
+        .help-text code { background: rgba(0,0,0,.06); padding: 2px 6px; border-radius: 4px; font-size: .85rem; }
+
+        /* ── Manage List ── */
+        .manage-item { margin-bottom: 10px; }
+        .manage-item-inner {
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+            background: var(--card); border-radius: var(--radius-sm); border: 1px solid var(--border);
+        }
+        .manage-item-info { flex: 1; min-width: 0; }
+        .manage-item-title { font-weight: 600; color: var(--text); font-size: .95rem; }
+        .manage-item-sub { font-size: .82rem; color: var(--text3); margin-top: 2px; }
+        .manage-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-edit, .btn-delete {
+            padding: 8px 14px; border-radius: 8px; font-size: .82rem; cursor: pointer;
+            border: 1px solid var(--border); background: #fff; transition: all .2s;
+        }
+        .btn-edit { color: var(--text2); }
+        .btn-delete { color: var(--primary); border-color: #FFD5D3; }
+        .btn-edit:active { background: #f0f0f0; }
+        .btn-delete:active { background: var(--primary-bg); }
+
+        /* ── Bottom Tab Bar (mobile) ── */
+        .bottom-tabs {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(255,255,255,.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); padding: 8px 0 calc(8px + var(--safe-bottom));
+        }
+        .bottom-tabs-inner { display: flex; justify-content: space-around; max-width: 600px; margin: 0 auto; }
+        .bottom-tab {
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 6px 8px; background: none; border: none; cursor: pointer;
+            color: var(--text3); font-size: .68rem; transition: color .2s;
+        }
+        .bottom-tab .tab-icon { font-size: 1.3rem; }
+        .bottom-tab.active { color: var(--primary); }
+
+        /* ── Desktop bottom bar hidden, horizontal tabs shown ── */
+        @media (min-width: 769px) {
+            .bottom-tabs { display: none !important; }
+            .tabs { display: flex !important; }
+            .container { padding: 24px 20px; }
+        }
+
+        /* ── Mobile: hide horizontal tabs, show bottom bar ── */
+        @media (max-width: 768px) {
+            .tabs { display: none; }
+            .bottom-tabs { display: block; }
+            .stats { grid-template-columns: repeat(3, 1fr); }
+            .stat-card:nth-child(4), .stat-card:nth-child(5) { grid-column: span 1; }
+            .form-card { padding: 20px 16px; }
+            .git-btns { flex-direction: column; }
+            .manage-item-actions { flex-direction: column; }
+        }
+        @media (max-width: 400px) {
+            .stats { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .stat-card { padding: 10px 2px; }
+            .stat-card .num { font-size: 1.2rem; }
+            .stat-card .label { font-size: .68rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✿ 博客管理</h1>
+        <p>简单填表，轻松发布内容</p>
+    </div>
+
+    <div class="container">
+        <!-- 统计 -->
+        <div class="stats" id="stats">
+            <div class="stat-card"><div class="num" id="statPosts">-</div><div class="label">文章</div></div>
+            <div class="stat-card"><div class="num" id="statPhotos">-</div><div class="label">照片</div></div>
+            <div class="stat-card"><div class="num" id="statTravels">-</div><div class="label">旅行</div></div>
+            <div class="stat-card"><div class="num" id="statProjects">-</div><div class="label">项目</div></div>
+            <div class="stat-card"><div class="num" id="statExcerpts">-</div><div class="label">摘抄</div></div>
+        </div>
+
+        <!-- 消息提示 -->
+        <div class="msg" id="msg"></div>
+
+        <!-- Git 操作栏 -->
+        <div class="git-bar" id="gitBar">
+            <div class="git-info">
+                <span class="git-branch" id="gitBranch">分支: 加载中...</span><br>
+                <span class="git-status-text" id="gitStatusText" style="cursor:pointer" onclick="toggleGitDetail()"></span>
+            </div>
+            <div class="git-btns">
+                <button class="btn-publish" id="btnPublish" onclick="gitPublish()">🚀 一键发布</button>
+                <button class="btn-rollback" id="btnRollback" onclick="gitRollback()">↩️ 回滚</button>
+            </div>
+            <div class="git-detail" id="gitDetail">
+                <div class="git-detail-inner">
+                    <ul class="git-file-list" id="gitFileList"></ul>
+                </div>
+            </div>
+            <div class="git-progress" id="gitProgress">
+                <div id="gitProgressSteps"></div>
+            </div>
+        </div>
+
+        <!-- Desktop tabs (hidden on mobile) -->
+        <div class="tabs" id="desktopTabs">
+            <button class="tab-btn active" data-tab="post">📝 写文章</button>
+            <button class="tab-btn" data-tab="photo">🖼️ 照片</button>
+            <button class="tab-btn" data-tab="travel">✈️ 旅行</button>
+            <button class="tab-btn" data-tab="project">📁 项目</button>
+            <button class="tab-btn" data-tab="zhai">📖 摘抄</button>
+            <button class="tab-btn" data-tab="manage" style="background:#f0f0f0">📋 管理</button>
+        </div>
+
+        <!-- 写文章 -->
+        <div class="form-card active" id="form-post">
+            <h2>写新文章</h2>
+            <p class="desc">写一篇散文、诗歌、随笔... 任何你想写的都可以。</p>
+            <form onsubmit="return submitForm(event, 'post')">
+                <input type="hidden" name="edit_id" value="">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" name="pub_date" id="pub_date">
+                    <p class="hint">留空则使用今天</p>
+                </div>
+                <div class="form-group">
+                    <label>时期</label>
+                    <input type="text" name="period" placeholder="例如：小学、2024年夏天">
+                    <p class="hint">用文字描述时间背景</p>
+                </div>
+                <div class="form-group">
+                    <label>文章标题 <span class="required">*</span></label>
+                    <input type="text" name="title" placeholder="例如：秋天的第一片落叶" required>
+                </div>
+                <div class="form-group">
+                    <label>标签</label>
+                    <input type="text" name="tags" placeholder="例如：散文 秋天（空格分隔）">
+                </div>
+                <div class="form-group">
+                    <label>正文 <span class="required">*</span></label>
+                    <textarea name="content" placeholder="在这里写下你的文章内容...&#10;&#10;支持 Markdown 格式：&#10;## 标题&#10;**加粗** *斜体*&#10;> 引用&#10;- 列表" required></textarea>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-post">发布文章</button>
+            </form>
+        </div>
+
+        <!-- 加照片 -->
+        <div class="form-card" id="form-photo">
+            <h2>添加二次元照片</h2>
+            <p class="desc">添加你喜欢的角色插画或截图。</p>
+            <div class="help-text">
+                <h3>选择图片</h3>
+                <p>从手机选择一张图片上传，或手动输入路径。</p>
+                <ul><li>支持 jpg、png、gif、webp</li><li>建议不超过 2MB</li></ul>
+            </div>
+            <form onsubmit="return submitForm(event, 'photo')">
+                <input type="hidden" name="edit_id" value="">
+                <div class="form-group">
+                    <label>上传图片</label>
+                    <input type="file" name="upload_file" id="photoUpload" accept="image/*">
+                    <p class="hint" id="photoUploadStatus">选择文件后自动上传</p>
+                </div>
+                <div class="form-group">
+                    <label>图片路径 <span class="required">*</span></label>
+                    <input type="text" name="img_path" id="photoImgPath" placeholder="img/anime-character.jpg" required>
+                </div>
+                <div class="form-group">
+                    <label>图片说明</label>
+                    <input type="text" name="caption" placeholder="例如：宫园薰 - 四月是你的谎言">
+                </div>
+                <button type="submit" class="btn-submit" id="btn-photo">添加照片</button>
+            </form>
+        </div>
+
+        <!-- 加旅行 -->
+        <div class="form-card" id="form-travel">
+            <h2>添加旅行影像</h2>
+            <p class="desc">记录你去过的地方，看过的风景。</p>
+            <div class="help-text">
+                <h3>准备图片</h3>
+                <p>建议用横版图片（16:10 比例效果最好）。</p>
+            </div>
+            <form onsubmit="return submitForm(event, 'travel')">
+                <input type="hidden" name="edit_id" value="">
+                <div class="form-group">
+                    <label>上传图片</label>
+                    <input type="file" name="upload_file" id="travelUpload" accept="image/*">
+                    <p class="hint" id="travelUploadStatus">选择文件后自动上传</p>
+                </div>
+                <div class="form-group">
+                    <label>图片路径 <span class="required">*</span></label>
+                    <input type="text" name="img_path" id="travelImgPath" placeholder="img/tokyo-tower.jpg" required>
+                </div>
+                <div class="form-group">
+                    <label>地点</label>
+                    <input type="text" name="place" placeholder="例如：东京塔">
+                </div>
+                <div class="form-group">
+                    <label>图片说明</label>
+                    <input type="text" name="caption" placeholder="例如：2024年冬天">
+                </div>
+                <button type="submit" class="btn-submit" id="btn-travel">添加旅行</button>
+            </form>
+        </div>
+
+        <!-- 加项目 -->
+        <div class="form-card" id="form-project">
+            <h2>添加新项目</h2>
+            <p class="desc">展示你的技术项目或作品。</p>
+            <form onsubmit="return submitForm(event, 'project')">
+                <input type="hidden" name="edit_id" value="">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" name="pub_date" id="pub_date_project">
+                </div>
+                <div class="form-group">
+                    <label>时期</label>
+                    <input type="text" name="period" placeholder="例如：大学时期、2024年夏天">
+                </div>
+                <div class="form-group">
+                    <label>项目名称 <span class="required">*</span></label>
+                    <input type="text" name="title" placeholder="例如：个人博客系统" required>
+                </div>
+                <div class="form-group">
+                    <label>简短描述</label>
+                    <input type="text" name="desc" placeholder="一句话描述你的项目">
+                </div>
+                <div class="form-group">
+                    <label>标签</label>
+                    <input type="text" name="tags" placeholder="例如：Python Django">
+                </div>
+                <div class="form-group">
+                    <label>项目链接</label>
+                    <input type="text" name="link" placeholder="https://github.com/lcy631zz/项目名">
+                </div>
+                <div class="form-group">
+                    <label>详细介绍</label>
+                    <textarea name="content" placeholder="介绍你的项目：&#10;- 做了什么&#10;- 用了什么技术&#10;- 有什么收获"></textarea>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-project">添加项目</button>
+            </form>
+        </div>
+
+        <!-- 加摘抄 -->
+        <div class="form-card" id="form-zhai">
+            <h2>添加读书摘抄</h2>
+            <p class="desc">记录书中打动你的文字。</p>
+            <form onsubmit="return submitForm(event, 'zhai')">
+                <input type="hidden" name="edit_id" value="">
+                <div class="form-group">
+                    <label>摘抄内容 <span class="required">*</span></label>
+                    <textarea name="quote" placeholder="例如：人间有味是清欢。" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>出处</label>
+                    <input type="text" name="source" placeholder="例如：苏轼《浣溪沙》">
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <input type="text" name="note" placeholder="例如：最喜欢的诗句">
+                </div>
+                <div class="form-group">
+                    <label>配图</label>
+                    <input type="file" name="upload_file" id="zhaiUpload" accept="image/*">
+                    <p class="hint" id="zhaiUploadStatus">选择文件后自动上传（可选）</p>
+                    <label style="margin-top:8px;display:block">或手动输入路径</label>
+                    <input type="text" name="img" id="zhaiImgPath" placeholder="img/zhai-cover.jpg">
+                </div>
+                <button type="submit" class="btn-submit" id="btn-zhai">添加摘抄</button>
+            </form>
+        </div>
+
+        <!-- 内容管理 -->
+        <div class="form-card" id="form-manage">
+            <h2>管理已发布内容</h2>
+            <p class="desc">查看、编辑或删除你已经发布的内容。</p>
+            <div class="tabs" style="margin-bottom:16px">
+                <button class="tab-btn active manage-tab" data-manage="post">📝 文章</button>
+                <button class="tab-btn manage-tab" data-manage="photo">🖼️ 照片</button>
+                <button class="tab-btn manage-tab" data-manage="travel">✈️ 旅行</button>
+                <button class="tab-btn manage-tab" data-manage="project">📁 项目</button>
+                <button class="tab-btn manage-tab" data-manage="zhai">📖 摘抄</button>
+            </div>
+            <div id="manageList" style="min-height:80px">
+                <p style="color:var(--text3);text-align:center;padding:40px">加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Tab Bar (mobile only) -->
+    <nav class="bottom-tabs" id="bottomTabs">
+        <div class="bottom-tabs-inner">
+            <button class="bottom-tab active" data-tab="post"><span class="tab-icon">📝</span>写文章</button>
+            <button class="bottom-tab" data-tab="photo"><span class="tab-icon">🖼️</span>照片</button>
+            <button class="bottom-tab" data-tab="travel"><span class="tab-icon">✈️</span>旅行</button>
+            <button class="bottom-tab" data-tab="project"><span class="tab-icon">📁</span>项目</button>
+            <button class="bottom-tab" data-tab="zhai"><span class="tab-icon">📖</span>摘抄</button>
+            <button class="bottom-tab" data-tab="manage"><span class="tab-icon">📋</span>管理</button>
+        </div>
+    </nav>
+
+    <script>
+        // ── Stats ──
+        function loadStats() {
+            fetch('/api/data').then(r => r.json()).then(data => {
+                document.getElementById('statPosts').textContent = data.posts.length;
+                document.getElementById('statPhotos').textContent = data.photos;
+                document.getElementById('statTravels').textContent = data.travels;
+                document.getElementById('statProjects').textContent = data.projects;
+                document.getElementById('statExcerpts').textContent = data.excerpts;
+            }).catch(() => {});
+        }
+        loadStats();
+
+        // ── Default Date ──
+        function setDefaultDate() {
+            const now = new Date();
+            const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+            const d1 = document.getElementById('pub_date');
+            const d2 = document.getElementById('pub_date_project');
+            if (d1 && d1.type === 'date' && !d1.value) d1.value = today;
+            if (d2 && d2.type === 'date' && !d2.value) d2.value = today;
+        }
+        setDefaultDate();
+
+        // ── File Upload ──
+        function handleUpload(inputEl, statusId, pathInputId) {
+            const file = inputEl.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById(statusId);
+            statusEl.textContent = '上传中...'; statusEl.style.color = '#D4342F';
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('/api/upload', { method: 'POST', body: formData })
+                .then(r => r.json()).then(data => {
+                    if (data.success && data.path) {
+                        document.getElementById(pathInputId).value = data.path;
+                        statusEl.textContent = '已上传: ' + data.filename;
+                        statusEl.style.color = '#3D8B6E';
+                    } else {
+                        statusEl.textContent = '上传失败: ' + (data.error || '未知错误');
+                        statusEl.style.color = '#B22F2A';
+                    }
+                }).catch(err => {
+                    statusEl.textContent = '上传失败: ' + err.message;
+                    statusEl.style.color = '#B22F2A';
+                });
+        }
+        document.getElementById('photoUpload')?.addEventListener('change', function() { if (this.files[0]) handleUpload(this, 'photoUploadStatus', 'photoImgPath'); });
+        document.getElementById('travelUpload')?.addEventListener('change', function() { if (this.files[0]) handleUpload(this, 'travelUploadStatus', 'travelImgPath'); });
+        document.getElementById('zhaiUpload')?.addEventListener('change', function() { if (this.files[0]) handleUpload(this, 'zhaiUploadStatus', 'zhaiImgPath'); });
+
+        // ── Tab Switching ──
+        function switchTab(type) {
+            if (editMode) cancelEdit();
+            document.querySelectorAll('.form-card').forEach(f => f.classList.remove('active'));
+            document.getElementById('form-' + type)?.classList.add('active');
+
+            // Update desktop tabs
+            document.querySelectorAll('#desktopTabs .tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#desktopTabs .tab-btn').forEach(b => {
+                if (b.dataset.tab === type) b.classList.add('active');
+            });
+
+            // Update bottom tabs
+            document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.bottom-tab').forEach(b => {
+                if (b.dataset.tab === type) b.classList.add('active');
+            });
+        }
+
+        // Desktop tab clicks
+        document.querySelectorAll('#desktopTabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+        // Bottom tab clicks
+        document.querySelectorAll('.bottom-tab').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        // ── Manage List ──
+        let manageTab = 'post';
+        let editMode = null;
+
+        document.querySelectorAll('.manage-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (editMode) cancelEdit();
+                document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                manageTab = btn.dataset.manage;
+                loadManageList();
+            });
+        });
+
+        function loadManageList() {
+            const listEl = document.getElementById('manageList');
+            listEl.innerHTML = '<p style="color:var(--text3);text-align:center;padding:40px">加载中...</p>';
+            fetch('/api/content?type=' + manageTab)
+                .then(r => r.json()).then(data => {
+                    if (data.error) {
+                        listEl.innerHTML = '<p style="color:var(--primary);text-align:center;padding:40px">' + data.error + '</p>';
+                        return;
+                    }
+                    const items = data.items || [];
+                    if (!items.length) {
+                        listEl.innerHTML = '<p style="color:var(--text3);text-align:center;padding:40px">暂无内容</p>';
+                        return;
+                    }
+                    listEl.innerHTML = items.map(item => {
+                        const title = item.title || item.quote?.substring(0, 50) || '未命名';
+                        const subtitle = item.source || item.place || item.caption || item.path || '';
+                        return `<div class="manage-item">
+                            <div class="manage-item-inner">
+                                <div class="manage-item-info">
+                                    <div class="manage-item-title">${title}</div>
+                                    ${subtitle ? `<div class="manage-item-sub">${subtitle}</div>` : ''}
+                                </div>
+                                <div class="manage-item-actions">
+                                    <button class="btn-edit" onclick="editItem('${item.id}')">编辑</button>
+                                    <button class="btn-delete" onclick="deleteItem('${item.id}')">删除</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }).catch(err => {
+                    listEl.innerHTML = '<p style="color:var(--primary);text-align:center;padding:40px">加载失败</p>';
+                });
+        }
+
+        function editItem(id) {
+            const typeMap = {post:'post', photo:'photo', travel:'travel', project:'project', zhai:'zhai'};
+            const type = typeMap[manageTab] || 'post';
+            switchTab(type);
+            const msg = document.getElementById('msg');
+            msg.className = 'msg'; msg.style.display = 'none';
+
+            fetch('/api/content?type=' + manageTab + '&id=' + encodeURIComponent(id))
+                .then(r => r.json()).then(data => {
+                    msg.style.display = 'none';
+                    if (data.error) { showMsg('加载失败: ' + data.error, 'error'); return; }
+                    editMode = {type: manageTab, id: id};
+                    populateForm(type, data);
+                    updateFormTitle(type, data);
+                }).catch(err => { msg.style.display = 'none'; showMsg('加载失败', 'error'); });
+        }
+
+        function populateForm(type, data) {
+            const form = document.getElementById('form-' + type);
+            const editIdInput = form.querySelector('input[name="edit_id"]');
+            if (editIdInput) editIdInput.value = data.id || '';
+
+            if (type === 'post' || type === 'project') {
+                const dateInput = form.querySelector('input[name="pub_date"]');
+                if (dateInput) dateInput.value = data.date || '';
+                const periodInput = form.querySelector('input[name="period"]');
+                if (periodInput) periodInput.value = data.period || '';
+                const titleInput = form.querySelector('input[name="title"]');
+                if (titleInput) titleInput.value = data.title || '';
+                const tagsInput = form.querySelector('input[name="tags"]');
+                if (tagsInput) tagsInput.value = data.tags || '';
+                const contentTextarea = form.querySelector('textarea[name="content"]');
+                if (contentTextarea) contentTextarea.value = data.content || '';
+                if (type === 'project') {
+                    const descInput = form.querySelector('input[name="desc"]');
+                    if (descInput) descInput.value = data.description || '';
+                    const linkInput = form.querySelector('input[name="link"]');
+                    if (linkInput) linkInput.value = data.link || '';
+                }
+            } else if (type === 'photo' || type === 'travel') {
+                const imgInput = form.querySelector('input[name="img_path"]');
+                if (imgInput) imgInput.value = data.img || '';
+                const captionInput = form.querySelector('input[name="caption"]');
+                if (captionInput) captionInput.value = data.caption || '';
+                if (type === 'travel') {
+                    const placeInput = form.querySelector('input[name="place"]');
+                    if (placeInput) placeInput.value = data.place || '';
+                }
+            } else if (type === 'zhai') {
+                const quoteTextarea = form.querySelector('textarea[name="quote"]');
+                if (quoteTextarea) quoteTextarea.value = data.quote || '';
+                const sourceInput = form.querySelector('input[name="source"]');
+                if (sourceInput) sourceInput.value = data.source || '';
+                const noteInput = form.querySelector('input[name="note"]');
+                if (noteInput) noteInput.value = data.note || '';
+                const imgInput = form.querySelector('input[name="img"]');
+                if (imgInput) imgInput.value = data.img || '';
+            }
+        }
+
+        function updateFormTitle(type, data) {
+            const form = document.getElementById('form-' + type);
+            const h2 = form.querySelector('h2');
+            const desc = form.querySelector('.desc');
+            const btn = form.querySelector('.btn-submit');
+            const names = {post:'文章', photo:'照片', travel:'旅行', project:'项目', zhai:'摘抄'};
+            const name = names[type] || type;
+            if (!form.dataset.originalH2) {
+                form.dataset.originalH2 = h2.textContent;
+                form.dataset.originalDesc = desc ? desc.textContent : '';
+                form.dataset.originalBtn = btn.textContent;
+            }
+            h2.textContent = '编辑' + name;
+            if (desc) desc.textContent = '修改这条' + name + '的内容。';
+            btn.textContent = '💾 保存修改';
+            btn.style.background = 'var(--green)';
+            if (!form.querySelector('.btn-cancel-edit')) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.type = 'button';
+                cancelBtn.className = 'btn-cancel-edit';
+                cancelBtn.textContent = '取消编辑';
+                cancelBtn.style.cssText = 'width:100%;margin-top:10px;padding:14px;border:2px solid var(--border);background:#fff;border-radius:100px;cursor:pointer;font-size:.95rem;color:var(--text3)';
+                cancelBtn.onclick = cancelEdit;
+                btn.parentNode.insertBefore(cancelBtn, btn.nextSibling);
+            }
+        }
+
+        function cancelEdit() {
+            editMode = null;
+            document.querySelectorAll('.form-card').forEach(form => {
+                form.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(el => {
+                    if (el.type === 'hidden' && el.name === 'edit_id') return;
+                    el.value = '';
+                });
+                const h2 = form.querySelector('h2');
+                const desc = form.querySelector('.desc');
+                const btn = form.querySelector('.btn-submit');
+                if (form.dataset.originalH2) {
+                    h2.textContent = form.dataset.originalH2;
+                    if (desc) desc.textContent = form.dataset.originalDesc;
+                    btn.textContent = form.dataset.originalBtn;
+                    btn.style.background = '';
+                    const cancelBtn = form.querySelector('.btn-cancel-edit');
+                    if (cancelBtn) cancelBtn.remove();
+                    delete form.dataset.originalH2;
+                    delete form.dataset.originalDesc;
+                    delete form.dataset.originalBtn;
+                }
+            });
+            setDefaultDate();
+        }
+
+        function deleteItem(id) {
+            const names = {post:'文章', photo:'照片', travel:'旅行', project:'项目', zhai:'摘抄'};
+            const name = names[manageTab] || manageTab;
+            if (!confirm('确定删除这条' + name + '吗？此操作不可恢复。')) return;
+            const btn = event.target;
+            btn.disabled = true; btn.textContent = '删除中...';
+            fetch('/api/content?type=' + manageTab, {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'id=' + encodeURIComponent(id)
+            }).then(r => r.json()).then(data => {
+                if (data.error) { showMsg(data.error, 'error'); }
+                else { showMsg(data.message || '已删除', 'success'); loadManageList(); loadStats(); }
+            }).catch(err => showMsg('删除失败', 'error'))
+            .finally(() => { btn.disabled = false; btn.textContent = '删除'; });
+        }
+
+        // ── Git Status ──
+        function loadGitStatus() {
+            fetch('/api/git/status').then(r => r.json()).then(data => {
+                document.getElementById('gitBranch').textContent = data.branch || '未知分支';
+                const dot = document.querySelector('.git-status-dot');
+                const text = document.getElementById('gitStatusText');
+                if (dot) dot.className = 'git-status-dot ' + (data.hasChanges ? 'dirty' : 'clean');
+                if (text) {
+                    if (data.hasChanges) {
+                        text.textContent = data.count + ' 个未提交修改（点击查看）';
+                        text.style.color = 'var(--primary)';
+                    } else {
+                        text.textContent = '已同步到最新';
+                        text.style.color = 'var(--text3)';
+                    }
+                }
+                const listEl = document.getElementById('gitFileList');
+                if (listEl) {
+                    listEl.innerHTML = '';
+                    if (data.files && data.files.length) {
+                        data.files.forEach(f => {
+                            const parts = f.trim().split(/\\s+/, 2);
+                            if (parts.length >= 2) {
+                                let cls = 'modified', label = 'M';
+                                if (parts[0] === 'A') { cls = 'added'; label = '+'; }
+                                else if (parts[0] === 'D') { cls = 'deleted'; label = '−'; }
+                                else if (parts[0] === '??') { cls = 'added'; label = '?'; }
+                                listEl.innerHTML += `<li><span class="git-file-status ${cls}">${label}</span><span>${parts[1]}</span></li>`;
+                            }
+                        });
+                    }
+                    if (!data.hasChanges) listEl.innerHTML = '<li style="color:var(--text3)">暂无修改</li>';
+                }
+            }).catch(() => {});
+        }
+        loadGitStatus();
+        setInterval(loadGitStatus, 15000);
+
+        function toggleGitDetail() {
+            document.getElementById('gitDetail').classList.toggle('open');
+        }
+
+        function showProgress(steps) {
+            const container = document.getElementById('gitProgress');
+            const stepsEl = document.getElementById('gitProgressSteps');
+            container.classList.add('active');
+            stepsEl.innerHTML = steps.map(s =>
+                `<div class="step" style="color:${s.done ? 'var(--green)' : (s.active ? 'var(--primary)' : 'var(--text3)')}">${s.done ? '✅' : (s.active ? '⏳' : '⬜')} ${s.text}</div>`
+            ).join('');
+        }
+        function hideProgress() { document.getElementById('gitProgress').classList.remove('active'); }
+
+        function gitPublish() {
+            const btn = document.getElementById('btnPublish');
+            btn.disabled = true;
+            showProgress([{text:'添加文件到暂存区...',active:true,done:false},{text:'提交变更...',active:false,done:false},{text:'推送到 GitHub...',active:false,done:false}]);
+            fetch('/api/git/publish', {method:'POST'}).then(r => r.json()).then(data => {
+                if (data.error) { showMsg(data.error, 'error'); hideProgress(); }
+                else {
+                    const steps = data.steps || [];
+                    showProgress(steps.map((s, i) => ({text:s, done:i<steps.length, active:i===steps.length})));
+                    if (!data.skipped) {
+                        setTimeout(() => { hideProgress(); showMsg(data.message || '发布完成！', 'success'); }, 1200);
+                    } else { hideProgress(); showMsg(data.message || '没有需要提交的修改', 'success'); }
+                    loadGitStatus();
+                }
+            }).catch(err => { showMsg('发布失败: ' + err.message, 'error'); hideProgress(); })
+            .finally(() => { btn.disabled = false; btn.textContent = '🚀 一键发布'; });
+        }
+
+        function gitRollback() {
+            if (!confirm('确定回滚吗？将丢弃所有未提交的修改。')) return;
+            const btn = document.getElementById('btnRollback');
+            btn.disabled = true; btn.textContent = '回滚中...';
+            fetch('/api/git/rollback', {method:'POST'}).then(r => r.json()).then(data => {
+                if (data.error) { showMsg(data.error, 'error'); }
+                else { showMsg(data.message || '已回滚', 'success'); loadGitStatus(); loadStats(); }
+            }).catch(err => showMsg('回滚失败', 'error'))
+            .finally(() => { btn.disabled = false; btn.textContent = '↩️ 回滚'; });
+        }
+
+        // ── Form Submit ──
+        function submitForm(e, type) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = document.getElementById('btn-' + type);
+            const msg = document.getElementById('msg');
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            params.append('type', type);
+            for (const [key, value] of formData.entries()) params.append(key, value);
+            if (params.has('edit_id')) params.set('id', params.get('edit_id'));
+            const isEdit = editMode && editMode.type === type;
+            const apiUrl = isEdit ? '/api/update' : '/api/post';
+
+            btn.disabled = true; btn.textContent = '提交中...';
+            msg.className = 'msg'; msg.style.display = 'none';
+
+            fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params.toString() })
+                .then(r => r.json()).then(data => {
+                    if (data.error) { showMsg(data.error, 'error'); }
+                    else {
+                        showMsg(isEdit ? (data.message || '更新成功！') : '添加成功！', 'success');
+                        if (isEdit) cancelEdit(); else form.reset();
+                        loadStats(); loadManageList();
+                    }
+                }).catch(err => showMsg('出错了: ' + err.message, 'error'))
+            .finally(() => {
+                btn.disabled = false;
+                const labels = {post: isEdit?'保存修改':'发布文章', photo: isEdit?'保存修改':'添加照片', travel: isEdit?'保存修改':'添加旅行', project: isEdit?'保存修改':'添加项目', zhai: isEdit?'保存修改':'添加摘抄'};
+                btn.textContent = labels[type] || '提交';
+                if (!isEdit) btn.style.background = '';
+            });
+            return false;
+        }
+
+        function showMsg(text, type) {
+            const msg = document.getElementById('msg');
+            msg.className = 'msg ' + type;
+            msg.textContent = text;
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 4000);
+        }
+    </script>
+</body>
+</html>

@@ -40,6 +40,12 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .nav-links a:hover{color:var(--red);background:var(--red-light)}
 .nav-links a.on{color:var(--red);background:var(--red-light);font-weight:600}
 
+/* Theme toggle */
+.theme-toggle{background:0 0;border:1px solid rgba(0,0,0,.1);border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:var(--ease);flex-shrink:0}
+.theme-toggle:hover{background:var(--light);border-color:rgba(0,0,0,.2)}
+html.dark .theme-toggle{border-color:rgba(255,255,255,.2)}
+html.dark .theme-toggle:hover{background:rgba(255,255,255,.1)}
+
 /* ============================================
    Hero
    ============================================ */
