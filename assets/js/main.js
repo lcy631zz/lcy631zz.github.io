@@ -25,18 +25,14 @@ function $(id) { return document.getElementById(id); }
 
 function loadContent() {
     loadLang();
-    console.log('[loadContent] DATA before:', typeof DATA, 'window.I18N:', typeof window.I18N);
     try {
         DATA = window.I18N;
-        console.log('[loadContent] DATA after:', typeof DATA, 'keys:', DATA ? Object.keys(DATA) : 'none');
     } catch (e) {
         console.error('[i18n] Failed to load data:', e);
         return;
     }
     try {
-        console.log('[loadContent] calling render...');
         render();
-        console.log('[loadContent] render completed');
     } catch (e) {
         console.error('[render] Error:', e);
     }
@@ -72,7 +68,6 @@ function render() {
     const d = DATA[lang];
     if (!d) return;
     const page = getPage();
-    console.log('[render] page:', page, 'lang:', lang);
     document.getElementById('zhaiList').setAttribute('data-page', page);
 
     /* Site name (all pages) */
@@ -250,7 +245,6 @@ function renderZhaiList() {
     const zl = $('zhaiList');
     if (zl) zl.setAttribute('data-render', 'called');
     if (!zl) return;
-    console.log('[zhai] renderZhaiList called, ZHAI:', !!window.ZHAI, 'items:', window.ZHAI?.items?.length);
     if (!window.ZHAI || !window.ZHAI.items || !window.ZHAI.items.length) {
         zl.innerHTML = '<div class="empty"><div class="empty-icon">🍒</div>' + na() + '</div>';
         return;
@@ -287,7 +281,6 @@ function renderZhaiList() {
         html += '</div>';
         return html;
     }).join('');
-    console.log('[zhai] renderZhaiList innerHTML length:', zl.innerHTML.length);
     requestAnimationFrame(() => {
         zl.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
     });
@@ -387,7 +380,6 @@ function loadLang() {
             lang = saved;
             document.documentElement.lang = saved;
         }
-        console.log('[lang] detected lang:', lang);
     } catch(e) {}
 }
 
