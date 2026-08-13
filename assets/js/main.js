@@ -161,8 +161,8 @@ function runS2T() {
     while ((n = walker.nextNode())) nodes.push(n);
     const convert = lang === 'zh-Hant' ? s2tConvert : t2sConvert;
     nodes.forEach(node => {
-        const t = node.textValue;
-        if (t) node.textValue = convert(t);
+        const t = node.nodeValue;
+        if (t) node.nodeValue = convert(t);
     });
 }
 
