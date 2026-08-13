@@ -68,6 +68,7 @@ function render() {
     const d = DATA[lang];
     if (!d) return;
     const page = getPage();
+    console.log('[render] page:', page, 'lang:', lang);
     document.getElementById('zhaiList').setAttribute('data-page', page);
 
     /* Site name (all pages) */
@@ -245,6 +246,7 @@ function renderZhaiList() {
     const zl = $('zhaiList');
     if (zl) zl.setAttribute('data-render', 'called');
     if (!zl) return;
+    console.log('[zhai] renderZhaiList called, ZHAI:', !!window.ZHAI, 'items:', window.ZHAI?.items?.length);
     if (!window.ZHAI || !window.ZHAI.items || !window.ZHAI.items.length) {
         zl.innerHTML = '<div class="empty"><div class="empty-icon">🍒</div>' + na() + '</div>';
         return;
@@ -380,6 +382,7 @@ function loadLang() {
             lang = saved;
             document.documentElement.lang = saved;
         }
+        console.log('[lang] detected lang:', lang);
     } catch(e) {}
 }
 
