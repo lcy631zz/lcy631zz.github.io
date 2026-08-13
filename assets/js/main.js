@@ -294,9 +294,10 @@ function openZhaiModal(i) {
     const source = z.source || '';
     const note = z.note || '';
     document.getElementById('mTitle').textContent = source || (lang === 'en' ? 'Excerpt' : '摘抄');
+    let body = '';
     if (z.poetry) {
         const stanzas = quote.split('\n').filter(s => s.trim());
-        let body = '<div style="text-align:center;padding:20px 0">';
+        body = '<div style="text-align:center;padding:20px 0">';
         body += '<div class="zhai-poetry-body">';
         stanzas.forEach(function(stanza, si) {
             body += '<div class="zhai-poetry-line" style="margin-bottom:' + (si < stanzas.length - 1 ? '18px' : '0') + '">' + stanza.trim() + '</div>';
@@ -315,7 +316,7 @@ function openZhaiModal(i) {
             body += '<p style="color:var(--text3);font-size:.88rem;margin-top:12px;text-align:center">' + note + '</p>';
         }
     } else {
-        let body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">';
+        body = '<blockquote style="font-size:1.3rem;line-height:2;font-style:italic;color:var(--text);border-left:3px solid var(--red);padding:16px 24px;margin:0;background:var(--red-light);border-radius:0 var(--r-s) var(--r-s) 0">';
         body += '“' + quote + '”</blockquote>';
         if (z.img) {
             const img = absPath(z.img);
@@ -330,7 +331,7 @@ function openZhaiModal(i) {
     document.getElementById('mMeta').innerHTML = '';
     document.getElementById('mBody').innerHTML = body;
     document.getElementById('artModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    if (document.body) document.body.style.overflow = 'hidden';
 }
 
 /* Highlight active nav link */
