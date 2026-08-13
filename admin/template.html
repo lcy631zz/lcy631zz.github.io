@@ -229,6 +229,7 @@
         <!-- Desktop tabs (hidden on mobile) -->
         <div class="tabs" id="desktopTabs">
             <button class="tab-btn active" data-tab="post">📝 写文章</button>
+            <button class="tab-btn" data-tab="bi">✏️ 笔</button>
             <button class="tab-btn" data-tab="photo">🖼️ 照片</button>
             <button class="tab-btn" data-tab="travel">✈️ 旅行</button>
             <button class="tab-btn" data-tab="project">📁 项目</button>
@@ -265,6 +266,38 @@
                     <textarea name="content" placeholder="在这里写下你的文章内容...&#10;&#10;支持 Markdown 格式：&#10;## 标题&#10;**加粗** *斜体*&#10;> 引用&#10;- 列表" required></textarea>
                 </div>
                 <button type="submit" class="btn-submit" id="btn-post">发布文章</button>
+            </form>
+        </div>
+
+        <!-- 写笔 -->
+        <div class="form-card" id="form-bi">
+            <h2>写新文章</h2>
+            <p class="desc">CS学习记录与编程思考。</p>
+            <form onsubmit="return submitForm(event, 'bi')">
+                <input type="hidden" name="edit_id" value="">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" name="pub_date" id="pub_date_bi">
+                    <p class="hint">留空则使用今天</p>
+                </div>
+                <div class="form-group">
+                    <label>时期</label>
+                    <input type="text" name="period" placeholder="例如：大二、2026年夏天">
+                    <p class="hint">用文字描述时间背景</p>
+                </div>
+                <div class="form-group">
+                    <label>文章标题 <span class="required">*</span></label>
+                    <input type="text" name="title" placeholder="例如：深入理解Python装饰器" required>
+                </div>
+                <div class="form-group">
+                    <label>标签</label>
+                    <input type="text" name="tags" placeholder="例如：Python 编程（空格分隔）">
+                </div>
+                <div class="form-group">
+                    <label>正文 <span class="required">*</span></label>
+                    <textarea name="content" placeholder="在这里写下你的文章内容...&#10;&#10;支持 Markdown 格式：&#10;## 标题&#10;**加粗** *斜体*&#10;> 引用&#10;- 列表" required></textarea>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-bi">发布文章</button>
             </form>
         </div>
 
