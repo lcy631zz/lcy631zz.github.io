@@ -68,7 +68,8 @@ function render() {
     const d = DATA[lang];
     if (!d) return;
     const page = getPage();
-    document.getElementById('zhaiList').setAttribute('data-page', page);
+    const zl = $('zhaiList');
+    if (zl) zl.setAttribute('data-page', page);
 
     /* Site name (all pages) */
     const sn = $('siteName');
