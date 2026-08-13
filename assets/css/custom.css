@@ -59,6 +59,10 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .hero-sub{font-size:1.15rem;color:var(--text2);max-width:520px;margin:0 auto 36px;font-weight:300;line-height:1.8}
 .hero-cta{display:inline-flex;align-items:center;gap:8px;padding:14px 36px;background:linear-gradient(135deg,var(--red),var(--red-accent));color:#fff;text-decoration:none;border-radius:100px;font-weight:500;font-size:1rem;transition:var(--ease);box-shadow:0 4px 20px rgba(212,52,47,.3)}
 .hero-cta:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(212,52,47,.4)}
+.scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text3);font-size:.8rem;animation:float 2s ease-in-out infinite;opacity:1;transition:opacity .5s}
+.scroll-hint.hide{opacity:0;pointer-events:none}
+.scroll-hint .arrow{width:24px;height:24px;border-right:2px solid var(--text3);border-bottom:2px solid var(--text3);transform:rotate(45deg)}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
 
 /* ============================================
    Sections (common)

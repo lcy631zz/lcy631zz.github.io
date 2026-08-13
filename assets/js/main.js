@@ -68,6 +68,7 @@ function render() {
     const d = DATA[lang];
     if (!d) return;
     const page = getPage();
+    document.getElementById('zhaiList').setAttribute('data-page', page);
 
     /* Site name (all pages) */
     const sn = $('siteName');
@@ -141,6 +142,7 @@ function render() {
 
     /* Zhai section page */
     if (page === 'zhai') {
+        document.getElementById('zhaiList').setAttribute('data-zhai', 'reached');
         setText('pageDesc', d.zhai?.desc);
         renderZhaiList();
     }
@@ -241,6 +243,7 @@ function sqEscape(s) { return (s || '').replace(/'/g, String.fromCharCode(92, 39
 /* Render zhai quote list */
 function renderZhaiList() {
     const zl = $('zhaiList');
+    if (zl) zl.setAttribute('data-render', 'called');
     if (!zl) return;
     if (!window.ZHAI || !window.ZHAI.items || !window.ZHAI.items.length) {
         zl.innerHTML = '<div class="empty"><div class="empty-icon">🍒</div>' + na() + '</div>';
@@ -8201,21 +8204,11 @@ function t2sConvert(text) {
     if (!text) return text;
     return text.split("").map(c => T2S_MAP[c] || c).join("");
 }
-function t2sConvert(text) {
-    if (!text) return text;
-    return text.split("").map(c => T2S_MAP[c] || c).join("");
-}
-function t2sConvert(text) {
-    if (!text) return text;
-    return text.split("").map(c => T2S_MAP[c] || c).join("");
-}
 s2tInit();
-t2sInit();
-t2sInit();
-t2sInit();
 t2sInit();
 
 /* Load on DOM ready */
+document.getElementById('zhaiList').setAttribute('data-ready', document.readyState);
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadContent);
 } else {
