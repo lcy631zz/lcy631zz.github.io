@@ -433,6 +433,7 @@
             <p class="desc">查看、编辑或删除你已经发布的内容。</p>
             <div class="tabs" style="margin-bottom:16px">
                 <button class="tab-btn active manage-tab" data-manage="post">📝 文章</button>
+                <button class="tab-btn manage-tab" data-manage="bi">✏️ 笔</button>
                 <button class="tab-btn manage-tab" data-manage="photo">🖼️ 照片</button>
                 <button class="tab-btn manage-tab" data-manage="travel">✈️ 旅行</button>
                 <button class="tab-btn manage-tab" data-manage="project">📁 项目</button>
@@ -448,6 +449,7 @@
     <nav class="bottom-tabs" id="bottomTabs">
         <div class="bottom-tabs-inner">
             <button class="bottom-tab active" data-tab="post"><span class="tab-icon">📝</span>写文章</button>
+            <button class="bottom-tab" data-tab="bi"><span class="tab-icon">✏️</span>笔</button>
             <button class="bottom-tab" data-tab="photo"><span class="tab-icon">🖼️</span>照片</button>
             <button class="bottom-tab" data-tab="travel"><span class="tab-icon">✈️</span>旅行</button>
             <button class="bottom-tab" data-tab="project"><span class="tab-icon">📁</span>项目</button>
@@ -461,6 +463,7 @@
         function loadStats() {
             fetch('/api/data').then(r => r.json()).then(data => {
                 document.getElementById('statPosts').textContent = data.posts.length;
+                document.getElementById('statBi').textContent = data.bi_posts ? data.bi_posts.length : 0;
                 document.getElementById('statPhotos').textContent = data.photos;
                 document.getElementById('statTravels').textContent = data.travels;
                 document.getElementById('statProjects').textContent = data.projects;
@@ -475,8 +478,10 @@
             const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
             const d1 = document.getElementById('pub_date');
             const d2 = document.getElementById('pub_date_project');
+            const d3 = document.getElementById('pub_date_bi');
             if (d1 && d1.type === 'date' && !d1.value) d1.value = today;
             if (d2 && d2.type === 'date' && !d2.value) d2.value = today;
+            if (d3 && d3.type === 'date' && !d3.value) d3.value = today;
         }
         setDefaultDate();
 
@@ -606,7 +611,7 @@
             const editIdInput = form.querySelector('input[name="edit_id"]');
             if (editIdInput) editIdInput.value = data.id || '';
 
-            if (type === 'post' || type === 'project') {
+            if (type === 'post' || type === 'bi' || type === 'project') {
                 const dateInput = form.querySelector('input[name="pub_date"]');
                 if (dateInput) dateInput.value = data.date || '';
                 const periodInput = form.querySelector('input[name="period"]');
@@ -649,7 +654,7 @@
             const h2 = form.querySelector('h2');
             const desc = form.querySelector('.desc');
             const btn = form.querySelector('.btn-submit');
-            const names = {post:'文章', photo:'照片', travel:'旅行', project:'项目', zhai:'摘抄'};
+            const names = {post:'文章', bi:'笔', photo:'照片', travel:'旅行', project:'项目', zhai:'摘抄'};
             const name = names[type] || type;
             if (!form.dataset.originalH2) {
                 form.dataset.originalH2 = h2.textContent;
@@ -697,7 +702,7 @@
         }
 
         function deleteItem(id) {
-            const names = {post:'文章', photo:'照片', travel:'旅行', project:'项目', zhai:'摘抄'};
+            const names = {post:'文章', bi:'笔', photo:'照片', travel:'旅行', project:'项目', zhai:'摘抄'};
             const name = names[manageTab] || manageTab;
             if (!confirm('确定删除这条' + name + '吗？此操作不可恢复。')) return;
             const btn = event.target;
@@ -822,7 +827,7 @@
                 }).catch(err => showMsg('出错了: ' + err.message, 'error'))
             .finally(() => {
                 btn.disabled = false;
-                const labels = {post: isEdit?'保存修改':'发布文章', photo: isEdit?'保存修改':'添加照片', travel: isEdit?'保存修改':'添加旅行', project: isEdit?'保存修改':'添加项目', zhai: isEdit?'保存修改':'添加摘抄'};
+                const labels = {post: isEdit?'保存修改':'发布文章', bi: isEdit?'保存修改':'发布文章', photo: isEdit?'保存修改':'添加照片', travel: isEdit?'保存修改':'添加旅行', project: isEdit?'保存修改':'添加项目', zhai: isEdit?'保存修改':'添加摘抄'};
                 btn.textContent = labels[type] || '提交';
                 if (!isEdit) btn.style.background = '';
             });
