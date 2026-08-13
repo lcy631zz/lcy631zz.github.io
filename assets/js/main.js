@@ -8210,7 +8210,8 @@ s2tInit();
 t2sInit();
 
 /* Load on DOM ready */
-document.getElementById('zhaiList').setAttribute('data-ready', document.readyState);
+const zlReady = $('zhaiList');
+if (zlReady) zlReady.setAttribute('data-ready', document.readyState);
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadContent);
 } else {
