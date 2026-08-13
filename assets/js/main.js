@@ -25,14 +25,18 @@ function $(id) { return document.getElementById(id); }
 
 function loadContent() {
     loadLang();
+    console.log('[loadContent] DATA before:', typeof DATA, 'window.I18N:', typeof window.I18N);
     try {
         DATA = window.I18N;
+        console.log('[loadContent] DATA after:', typeof DATA, 'keys:', DATA ? Object.keys(DATA) : 'none');
     } catch (e) {
         console.error('[i18n] Failed to load data:', e);
         return;
     }
     try {
+        console.log('[loadContent] calling render...');
         render();
+        console.log('[loadContent] render completed');
     } catch (e) {
         console.error('[render] Error:', e);
     }
@@ -283,6 +287,7 @@ function renderZhaiList() {
         html += '</div>';
         return html;
     }).join('');
+    console.log('[zhai] renderZhaiList innerHTML length:', zl.innerHTML.length);
     requestAnimationFrame(() => {
         zl.querySelectorAll('.fi').forEach(el => el.classList.add('v'));
     });
