@@ -27,6 +27,31 @@
     </div>
 </section>
 
+{{ else if eq $sec "bi" }}
+<section class="page-section page-blog">
+    <div class="section-inner">
+        <div class="page-divider"></div>
+        <h1 class="page-title">{{ i18n "bi.title" | default "笔" }}</h1>
+        <p class="page-desc" id="pageDesc">{{ i18n "bi.desc" | default "CS学习记录与编程思考。" }}</p>
+        <div class="blog-list">
+            {{ $pages := where .Site.RegularPages "Section" "bi" }}
+            {{ if $pages }}
+                {{ range $pages }}
+                <a href="{{ .RelPermalink }}" class="blog-item fi">
+                    <h3>{{ .Title }}</h3>
+                    <div class="meta">
+                        {{ with .Params.period }}{{ . }}{{ else }}{{ .Date.Format "2006-01-02" }}{{ end }}
+                    </div>
+                    <p class="excerpt">{{ .Plain | truncate 200 }}</p>
+                </a>
+                {{ end }}
+            {{ else }}
+                <div class="empty"><div class="empty-icon">✏️</div>暂无文章</div>
+            {{ end }}
+        </div>
+    </div>
+</section>
+
 {{ else if eq $sec "projects" }}
 <section class="page-section page-projects">
     <div class="section-inner">

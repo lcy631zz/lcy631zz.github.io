@@ -71,6 +71,8 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
 
             if content_type == 'post':
                 result = self.create_post(title, params)
+            elif content_type == 'bi':
+                result = self.create_bi_post(title, params)
             elif content_type == 'photo':
                 result = self.add_photo(params)
             elif content_type == 'travel':
@@ -101,12 +103,14 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             if not cid:
                 self.send_json({'error': '缺少内容 ID'}, 400)
                 return
-            if ctype in ('post', 'project') and not title:
+            if ctype in ('post', 'bi') and not title:
                 self.send_json({'error': '标题不能为空'}, 400)
                 return
 
             if ctype == 'post':
                 result = self._update_post(cid, params)
+            elif ctype == 'bi':
+                result = self._update_bi_post(cid, params)
             elif ctype == 'project':
                 result = self._update_project(cid, params)
             elif ctype == 'photo':
@@ -157,7 +161,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(html.encode('utf-8'))
 
     def get_data(self):
-        data = {'posts': [], 'photos': 0, 'travels': 0, 'projects': 0, 'excerpts': 0}
+        data = {'posts': [], 'photos': 0, 'travels': 0, 'projects': 0, 'excerpts': 0, 'bi_posts': []}
 
         blog_dir = os.path.join(BLOG_DIR, 'content', 'blog')
         if os.path.isdir(blog_dir):
@@ -165,6 +169,13 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
                 idx = os.path.join(blog_dir, d, 'index.zh-Hans.md')
                 if os.path.isfile(idx):
                     data['posts'].append(d)
+
+        bi_dir = os.path.join(BLOG_DIR, 'content', 'bi')
+        if os.path.isdir(bi_dir):
+            for d in sorted(os.listdir(bi_dir), reverse=True):
+                idx = os.path.join(bi_dir, d, 'index.zh-Hans.md')
+                if os.path.isfile(idx):
+                    data['bi_posts'].append(d)
 
         yin_file = os.path.join(BLOG_DIR, 'data', 'yin.json')
         if os.path.isfile(yin_file):
@@ -527,6 +538,8 @@ link: "{link}"
         try:
             if ctype == 'post':
                 return self._list_posts()
+            elif ctype == 'bi':
+                return self._list_bi_posts()
             elif ctype == 'photo':
                 return self._list_photos()
             elif ctype == 'travel':
@@ -586,6 +599,8 @@ link: "{link}"
         try:
             if ctype == 'post':
                 return self._get_post(cid)
+            elif ctype == 'bi':
+                return self._get_bi_post(cid)
             elif ctype == 'photo':
                 return self._get_photo(cid)
             elif ctype == 'travel':
@@ -825,6 +840,8 @@ link: "{link}"
         try:
             if ctype == 'post':
                 return self._delete_post(cid)
+            elif ctype == 'bi':
+                return self._delete_bi_post(cid)
             elif ctype == 'photo':
                 return self._delete_photo(cid)
             elif ctype == 'travel':
@@ -886,6 +903,108 @@ link: "{link}"
         with open(data_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return {'success': True, 'message': '已删除摘抄'}
+
+    # ── Bi (笔) CRUD ──
+    def create_bi_post(self, title, params):
+        safe_title = title.strip()
+        dir_path = os.path.join(BLOG_DIR, 'content', 'bi', safe_title)
+
+        if os.path.exists(dir_path):
+            return {'error': f'文章「{safe_title}」已存在'}
+
+        os.makedirs(dir_path, exist_ok=True)
+
+        pub_date = params.get('pub_date', [''])[0].strip()
+        if pub_date:
+            date_value = pub_date
+        else:
+            from datetime import date
+            date_value = date.today().isoformat()
+        period = params.get('period', [''])[0].strip()
+        period_yaml = f'period: "{period}"' if period else ''
+        tags = params.get('tags', [''])[0].strip()
+        tags_yaml = '[]'
+        if tags:
+            tag_list = [t.strip() for t in tags.replace(',', ' ').split() if t.strip()]
+            tags_yaml = json.dumps(tag_list, ensure_ascii=False)
+
+        content = params.get('content', [''])[0].strip()
+        if not content:
+            content = '在这里写下你的内容吧！'
+
+        md = f'''---
+title: "{safe_title}"
+date: {date_value}
+{period_yaml}
+description: ""
+tags: {tags_yaml}
+---
+
+{content}
+'''
+
+        filepath = os.path.join(dir_path, 'index.zh-Hans.md')
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(md)
+
+        return {'success': True, 'message': f'文章「{safe_title}」已发布', 'path': filepath}
+
+    def _list_bi_posts(self):
+        items = []
+        bi_dir = os.path.join(BLOG_DIR, 'content', 'bi')
+        if os.path.isdir(bi_dir):
+            for d in sorted(os.listdir(bi_dir), reverse=True):
+                idx = os.path.join(bi_dir, d, 'index.zh-Hans.md')
+                if os.path.isfile(idx):
+                    items.append({'id': d, 'title': d, 'path': idx, 'type': 'dir'})
+        return {'items': items}
+
+    def _get_bi_post(self, cid):
+        filepath = os.path.join(BLOG_DIR, 'content', 'bi', cid, 'index.zh-Hans.md')
+        if not os.path.isfile(filepath):
+            return {'error': f'文章「{cid}」不存在'}
+        meta, body = self._parse_frontmatter(filepath)
+        return {
+            'id': cid, 'type': 'bi',
+            'title': meta.get('title', cid),
+            'date': meta.get('date', ''),
+            'period': meta.get('period', ''),
+            'tags': meta.get('tags', ''),
+            'content': body,
+            'path': filepath,
+        }
+
+    def _update_bi_post(self, cid, params):
+        filepath = os.path.join(BLOG_DIR, 'content', 'bi', cid, 'index.zh-Hans.md')
+        if not os.path.isfile(filepath):
+            return {'error': f'文章「{cid}」不存在'}
+        old_meta, body = self._parse_frontmatter(filepath)
+        title = params.get('title', [''])[0].strip() or old_meta.get('title', cid)
+        pub_date = params.get('pub_date', [''])[0].strip() or old_meta.get('date', date.today().isoformat())
+        period = params.get('period', [''])[0].strip()
+        tags = params.get('tags', [''])[0].strip()
+        content = params.get('content', [''])[0].strip() or body
+        meta = {
+            'title': title,
+            'date': pub_date,
+            'period': period if period is not None else old_meta.get('period', ''),
+            'tags': tags,
+            'description': old_meta.get('description', ''),
+        }
+        if 'period' in params and params['period'][0].strip() != '':
+            meta['period'] = period
+        else:
+            meta['period'] = old_meta.get('period', '')
+        self._write_frontmatter(filepath, meta, content)
+        return {'success': True, 'message': f'文章「{title}」已更新'}
+
+    def _delete_bi_post(self, cid):
+        import shutil
+        dir_path = os.path.join(BLOG_DIR, 'content', 'bi', cid)
+        if not os.path.isdir(dir_path):
+            return {'error': f'文章「{cid}」不存在'}
+        shutil.rmtree(dir_path)
+        return {'success': True, 'message': f'已删除文章「{cid}」'}
 
     def send_pwa_page(self):
         """Serve the PWA wrapper page for mobile app experience"""

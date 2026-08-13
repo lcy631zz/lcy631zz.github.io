@@ -50,6 +50,11 @@
       "hub_desc": "走过的路，看过的风景",
       "items": []
     },
+    "bi": {
+      "title": "笔",
+      "desc": "CS学习记录与编程思考。",
+      "hub_desc": "CS学习记录"
+    },
     "footer": "用 ❤ 与代码构建 · 2026"
   },
   "zh-Hant": {
@@ -103,6 +108,11 @@
       "hub_desc": "走過的路，看過的風景",
       "items": []
     },
+    "bi": {
+      "title": "筆",
+      "desc": "CS學習記錄與編程思考。",
+      "hub_desc": "CS學習記錄"
+    },
     "footer": "用 ❤ 與代碼構建 · 2026"
   },
   "en": {
@@ -155,6 +165,11 @@
       "desc": "Places I've been, sights I've seen.",
       "hub_desc": "Places I've been, sights I've seen",
       "items": []
+    },
+    "bi": {
+      "title": "Pen",
+      "desc": "CS learning notes and programming thoughts.",
+      "hub_desc": "CS Learning"
     },
     "footer": "Built with ❤ & Code · 2026"
   }

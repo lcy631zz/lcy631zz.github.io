@@ -12,6 +12,9 @@ function getPage() {
     if (p === '/xing') return 'xing';
     if (p === '/zhai') return 'zhai';
     if (p.startsWith('/blog/')) return 'blog-single';
+    if (p === '/projects') return 'projects';
+    if (p === '/bi') return 'bi';
+    if (p.startsWith('/bi/')) return 'bi-single';
     if (p.startsWith('/projects/')) return 'project-single';
     if (p.startsWith('/zhai/')) return 'zhai-single';
     return 'other';
@@ -86,6 +89,8 @@ function render() {
         setText('hubProjDesc', d.projects?.hub_desc || d.projects?.desc);
         setText('hubZhaiTitle', d.zhai?.title);
         setText('hubZhaiDesc', d.zhai?.hub_desc || d.zhai?.desc);
+        setText('hubBiTitle', d.bi?.title);
+        setText('hubBiDesc', d.bi?.hub_desc || d.bi?.desc);
         setText('hubYinTitle', d.yin?.title);
         setText('hubYinDesc', d.yin?.hub_desc || d.yin?.desc);
         setText('hubXingTitle', d.xing?.title);
@@ -137,6 +142,26 @@ function render() {
     if (page === 'zhai') {
         setText('pageDesc', d.zhai?.desc);
         renderZhaiList();
+    }
+
+    /* Bi section page */
+    if (page === 'bi') {
+        setText('pageDesc', d.bi?.desc);
+    }
+
+    /* S2T conversion for blog/bi single pages */
+    if ((page === 'blog-single' || page === 'bi-single') && lang === 'zh-Hant') {
+        const db = document.querySelector('.detail-body');
+        if (db) {
+            const walker = document.createTreeWalker(db, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            let n;
+            while ((n = walker.nextNode())) nodes.push(n);
+            nodes.forEach(node => {
+                const t = node.textValue;
+                if (t) node.textValue = s2tConvert(t);
+            });
+        }
     }
 
     /* Footer (all pages) */
@@ -312,7 +337,9 @@ function setNavActive(page) {
         'yin': '/yin/',
         'xing': '/xing/',
         'zhai': '/zhai/',
+        'bi': '/bi/',
         'blog-single': '/blog/',
+        'bi-single': '/bi/',
         'project-single': '/projects/',
         'zhai-single': '/zhai/'
     };
@@ -403,6 +430,284 @@ function toggleMenu() {
         });
     }
 }
+
+/* S2T Converter */
+const S2T_MAP = {};
+function s2tInit() {
+    S2T_MAP["万"] = "萬";
+    S2T_MAP["与"] = "與";
+    S2T_MAP["丑"] = "醜";
+    S2T_MAP["专"] = "專";
+    S2T_MAP["业"] = "業";
+    S2T_MAP["丛"] = "叢";
+    S2T_MAP["东"] = "東";
+    S2T_MAP["丝"] = "絲";
+    S2T_MAP["丢"] = "丟";
+    S2T_MAP["两"] = "兩";
+    S2T_MAP["严"] = "嚴";
+    S2T_MAP["丧"] = "喪";
+    S2T_MAP["个"] = "個";
+    S2T_MAP["丰"] = "豐";
+    S2T_MAP["临"] = "臨";
+    S2T_MAP["为"] = "為";
+    S2T_MAP["丽"] = "麗";
+    S2T_MAP["举"] = "舉";
+    S2T_MAP["么"] = "麼";
+    S2T_MAP["义"] = "義";
+    S2T_MAP["乌"] = "烏";
+    S2T_MAP["乐"] = "樂";
+    S2T_MAP["乔"] = "喬";
+    S2T_MAP["习"] = "習";
+    S2T_MAP["乡"] = "鄉";
+    S2T_MAP["书"] = "書";
+    S2T_MAP["买"] = "買";
+    S2T_MAP["乱"] = "亂";
+    S2T_MAP["争"] = "爭";
+    S2T_MAP["于"] = "於";
+    S2T_MAP["亏"] = "虧";
+    S2T_MAP["云"] = "雲";
+    S2T_MAP["亚"] = "亞";
+    S2T_MAP["产"] = "產";
+    S2T_MAP["亩"] = "畝";
+    S2T_MAP["亲"] = "親";
+    S2T_MAP["亵"] = "褻";
+    S2T_MAP["亿"] = "億";
+    S2T_MAP["仅"] = "僅";
+    S2T_MAP["从"] = "從";
+    S2T_MAP["仑"] = "侖";
+    S2T_MAP["仓"] = "倉";
+    S2T_MAP["仪"] = "儀";
+    S2T_MAP["们"] = "們";
+    S2T_MAP["价"] = "價";
+    S2T_MAP["众"] = "眾";
+    S2T_MAP["优"] = "優";
+    S2T_MAP["伙"] = "夥";
+    S2T_MAP["会"] = "會";
+    S2T_MAP["伛"] = "傴";
+    S2T_MAP["伞"] = "傘";
+    S2T_MAP["伟"] = "偉";
+    S2T_MAP["传"] = "傳";
+    S2T_MAP["伤"] = "傷";
+    S2T_MAP["伥"] = "倀";
+    S2T_MAP["伦"] = "倫";
+    S2T_MAP["伧"] = "傖";
+    S2T_MAP["伪"] = "偽";
+    S2T_MAP["伫"] = "佇";
+    S2T_MAP["体"] = "體";
+    S2T_MAP["余"] = "餘";
+    S2T_MAP["佣"] = "傭";
+    S2T_MAP["佥"] = "僉";
+    S2T_MAP["侠"] = "俠";
+    S2T_MAP["侣"] = "侶";
+    S2T_MAP["侥"] = "僥";
+    S2T_MAP["侦"] = "偵";
+    S2T_MAP["侧"] = "側";
+    S2T_MAP["侨"] = "僑";
+    S2T_MAP["侩"] = "儈";
+    S2T_MAP["侪"] = "儕";
+    S2T_MAP["侬"] = "儂";
+    S2T_MAP["俣"] = "俁";
+    S2T_MAP["俦"] = "儔";
+    S2T_MAP["俨"] = "儼";
+    S2T_MAP["俩"] = "倆";
+    S2T_MAP["俪"] = "儷";
+    S2T_MAP["俭"] = "儉";
+    S2T_MAP["债"] = "債";
+    S2T_MAP["倾"] = "傾";
+    S2T_MAP["偬"] = "傯";
+    S2T_MAP["偻"] = "僂";
+    S2T_MAP["偾"] = "僨";
+    S2T_MAP["偿"] = "償";
+    S2T_MAP["傥"] = "儻";
+    S2T_MAP["傧"] = "儐";
+    S2T_MAP["储"] = "儲";
+    S2T_MAP["傩"] = "儺";
+    S2T_MAP["僵"] = "殭";
+    S2T_MAP["儿"] = "兒";
+    S2T_MAP["兖"] = "兗";
+    S2T_MAP["党"] = "黨";
+    S2T_MAP["兰"] = "蘭";
+    S2T_MAP["关"] = "關";
+    S2T_MAP["兴"] = "興";
+    S2T_MAP["兹"] = "茲";
+    S2T_MAP["养"] = "養";
+    S2T_MAP["兽"] = "獸";
+    S2T_MAP["内"] = "內";
+    S2T_MAP["册"] = "冊";
+    S2T_MAP["写"] = "寫";
+    S2T_MAP["军"] = "軍";
+    S2T_MAP["农"] = "農";
+    S2T_MAP["冯"] = "馮";
+    S2T_MAP["冲"] = "沖";
+    S2T_MAP["决"] = "決";
+    S2T_MAP["况"] = "況";
+    S2T_MAP["冻"] = "凍";
+    S2T_MAP["净"] = "淨";
+    S2T_MAP["凄"] = "淒";
+    S2T_MAP["准"] = "準";
+    S2T_MAP["凉"] = "涼";
+    S2T_MAP["减"] = "減";
+    S2T_MAP["凑"] = "湊";
+    S2T_MAP["几"] = "幾";
+    S2T_MAP["凤"] = "鳳";
+    S2T_MAP["凫"] = "鳧";
+    S2T_MAP["凭"] = "憑";
+    S2T_MAP["凯"] = "凱";
+    S2T_MAP["凶"] = "兇";
+    S2T_MAP["击"] = "擊";
+    S2T_MAP["凿"] = "鑿";
+    S2T_MAP["刍"] = "芻";
+    S2T_MAP["划"] = "劃";
+    S2T_MAP["刘"] = "劉";
+    S2T_MAP["则"] = "則";
+    S2T_MAP["刚"] = "剛";
+    S2T_MAP["创"] = "創";
+    S2T_MAP["删"] = "刪";
+    S2T_MAP["刨"] = "鉋";
+    S2T_MAP["别"] = "別";
+    S2T_MAP["刭"] = "剄";
+    S2T_MAP["刹"] = "剎";
+    S2T_MAP["刾"] = "剾";
+    S2T_MAP["刿"] = "劌";
+    S2T_MAP["剀"] = "剴";
+    S2T_MAP["剂"] = "劑";
+    S2T_MAP["剉"] = "銼";
+    S2T_MAP["剐"] = "剮";
+    S2T_MAP["剑"] = "劍";
+    S2T_MAP["剥"] = "剝";
+    S2T_MAP["剣"] = "劍";
+    S2T_MAP["剤"] = "劑";
+    S2T_MAP["剧"] = "劇";
+    S2T_MAP["剱"] = "劔";
+    S2T_MAP["剿"] = "勦";
+    S2T_MAP["刽"] = "劊";
+    S2T_MAP["刾"] = "劎";
+    S2T_MAP["劝"] = "勸";
+    S2T_MAP["办"] = "辦";
+    S2T_MAP["务"] = "務";
+    S2T_MAP["劢"] = "勱";
+    S2T_MAP["动"] = "動";
+    S2T_MAP["劭"] = "勛";
+    S2T_MAP["势"] = "勢";
+    S2T_MAP["勋"] = "勛";
+    S2T_MAP["勐"] = "猛";
+    S2T_MAP["勚"] = "勩";
+    S2T_MAP["勧"] = "勸";
+    S2T_MAP["勲"] = "勳";
+    S2T_MAP["匀"] = "勻";
+    S2T_MAP["匮"] = "匱";
+    S2T_MAP["区"] = "區";
+    S2T_MAP["医"] = "醫";
+    S2T_MAP["华"] = "華";
+    S2T_MAP["协"] = "協";
+    S2T_MAP["单"] = "單";
+    S2T_MAP["卖"] = "賣";
+    S2T_MAP["卢"] = "盧";
+    S2T_MAP["卤"] = "鹵";
+    S2T_MAP["卫"] = "衛";
+    S2T_MAP["却"] = "卻";
+    S2T_MAP["厅"] = "廳";
+    S2T_MAP["历"] = "曆";
+    S2T_MAP["厉"] = "厲";
+    S2T_MAP["压"] = "壓";
+    S2T_MAP["厌"] = "厭";
+    S2T_MAP["厍"] = "厙";
+    S2T_MAP["厐"] = "厖";
+    S2T_MAP["厕"] = "廁";
+    S2T_MAP["厘"] = "釐";
+    S2T_MAP["厠"] = "廁";
+    S2T_MAP["厢"] = "廂";
+    S2T_MAP["厣"] = "厴";
+    S2T_MAP["厦"] = "廈";
+    S2T_MAP["厨"] = "廚";
+    S2T_MAP["厩"] = "廄";
+    S2T_MAP["厮"] = "廝";
+    S2T_MAP["厯"] = "曆";
+    S2T_MAP["厰"] = "廠";
+    S2T_MAP["县"] = "縣";
+    S2T_MAP["叁"] = "參";
+    S2T_MAP["参"] = "參";
+    S2T_MAP["叆"] = "靉";
+    S2T_MAP["叇"] = "靆";
+    S2T_MAP["双"] = "雙";
+    S2T_MAP["发"] = "發";
+    S2T_MAP["变"] = "變";
+    S2T_MAP["叙"] = "敘";
+    S2T_MAP["叠"] = "疊";
+    S2T_MAP["台"] = "臺";
+    S2T_MAP["叶"] = "葉";
+    S2T_MAP["号"] = "號";
+    S2T_MAP["叹"] = "嘆";
+    S2T_MAP["叽"] = "嘰";
+    S2T_MAP["吁"] = "籲";
+    S2T_MAP["吊"] = "弔";
+    S2T_MAP["后"] = "後";
+    S2T_MAP["吓"] = "嚇";
+    S2T_MAP["吨"] = "噸";
+    S2T_MAP["听"] = "聽";
+    S2T_MAP["启"] = "啟";
+    S2T_MAP["吴"] = "吳";
+    S2T_MAP["呉"] = "吳";
+    S2T_MAP["呐"] = "吶";
+    S2T_MAP["呒"] = "嘸";
+    S2T_MAP["呓"] = "囈";
+    S2T_MAP["呕"] = "嘔";
+    S2T_MAP["呖"] = "嚦";
+    S2T_MAP["员"] = "員";
+    S2T_MAP["呙"] = "咼";
+    S2T_MAP["呛"] = "嗆";
+    S2T_MAP["呜"] = "嗚";
+    S2T_MAP["咙"] = "嚨";
+    S2T_MAP["咛"] = "嚀";
+    S2T_MAP["咝"] = "噝";
+    S2T_MAP["咤"] = "吒";
+    S2T_MAP["呗"] = "唄";
+    S2T_MAP["响"] = "響";
+    S2T_MAP["哑"] = "啞";
+    S2T_MAP["哒"] = "噠";
+    S2T_MAP["哓"] = "嘵";
+    S2T_MAP["哔"] = "嗶";
+    S2T_MAP["哕"] = "噦";
+    S2T_MAP["哗"] = "嘩";
+    S2T_MAP["哙"] = "噲";
+    S2T_MAP["哜"] = "嚌";
+    S2T_MAP["哝"] = "噥";
+    S2T_MAP["哟"] = "喲";
+    S2T_MAP["唇"] = "脣";
+    S2T_MAP["唖"] = "啞";
+    S2T_MAP["唚"] = "唫";
+    S2T_MAP["唛"] = "嘜";
+    S2T_MAP["唝"] = "嗊";
+    S2T_MAP["唠"] = "嘮";
+    S2T_MAP["唡"] = "啢";
+    S2T_MAP["唢"] = "嗩";
+    S2T_MAP["唤"] = "喚";
+    S2T_MAP["啧"] = "嘖";
+    S2T_MAP["啬"] = "嗇";
+    S2T_MAP["啭"] = "囀";
+    S2T_MAP["啮"] = "齧";
+    S2T_MAP["啰"] = "囉";
+    S2T_MAP["啴"] = "嘽";
+    S2T_MAP["喱"] = "嚨";
+    S2T_MAP["営"] = "營";
+    S2T_MAP["喷"] = "噴";
+    S2T_MAP["喽"] = "嘍";
+    S2T_MAP["喾"] = "嚳";
+    S2T_MAP["嗫"] = "囁";
+    S2T_MAP["嗳"] = "噯";
+    S2T_MAP["嘘"] = "噓";
+    S2T_MAP["嘠"] = "嘰";
+    S2T_MAP["嘤"] = "嚶";
+    S2T_MAP["嘨"] = "嘯";
+    S2T_MAP["嘱"] = "囑";
+    S2T_MAP["噜"] = "嚕";
+    S2T_MAP["咸"] = "鹹";
+}
+function s2tConvert(text) {
+    if (!text) return text;
+    return text.split("").map(c => S2T_MAP[c] || c).join("");
+}
+s2tInit();
 
 /* Load on DOM ready */
 if (document.readyState === 'loading') {
