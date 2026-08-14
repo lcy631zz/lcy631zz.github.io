@@ -584,7 +584,14 @@ link: "{link}"
             for d in sorted(os.listdir(proj_dir), reverse=True):
                 idx = os.path.join(proj_dir, d, 'index.zh-Hans.md')
                 if os.path.isfile(idx):
-                    items.append({'id': d, 'title': d, 'path': idx, 'type': 'dir'})
+                    meta, _ = self._parse_frontmatter(idx)
+                    items.append({
+                        'id': d,
+                        'title': meta.get('title', d),
+                        'link': meta.get('link', ''),
+                        'path': idx,
+                        'type': 'dir'
+                    })
         return {'items': items}
 
     def _list_zhaies(self):

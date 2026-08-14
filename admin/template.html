@@ -570,7 +570,9 @@
                     }
                     listEl.innerHTML = items.map(item => {
                         const title = item.title || item.quote?.substring(0, 50) || '未命名';
-                        const subtitle = item.source || item.place || item.caption || item.path || '';
+                        let subtitle = item.source || item.place || item.caption || '';
+                        if (item.link) subtitle = item.link + (subtitle ? ' · ' + subtitle : '');
+                        else if (!subtitle && item.type === 'dir' && item.path) subtitle = item.path;
                         return `<div class="manage-item">
                             <div class="manage-item-inner">
                                 <div class="manage-item-info">
