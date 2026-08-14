@@ -8,7 +8,9 @@
             {{ $pages := where .Site.RegularPages "Section" "projects" }}
             {{ if $pages }}
                 {{ range $pages }}
-                <a href="{{ .RelPermalink }}" class="project-item fi">
+                {{ $href := .RelPermalink }}
+                {{ if .Params.link }}{{ $href = .Params.link }}{{ end }}
+                <a href="{{ $href }}" class="project-item fi"{{ if .Params.link }} target="_blank" rel="noopener"{{ end }}>
                     <div class="project-icon">📁</div>
                     <div class="project-info">
                         <h3>{{ .Title }}</h3>
