@@ -76,6 +76,13 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .section-green .divider{background:linear-gradient(90deg,var(--green),var(--green-mint))}.section-green .section-title{color:#2D5A42}.section-green .section-desc{color:#5A7D6A}
 .section-orange .divider{background:linear-gradient(90deg,var(--orange),var(--orange-accent))}.section-orange .section-title{color:#8B4A06}.section-orange .section-desc{color:#7A5C3E}
 
+/* Large screens */
+@media(min-width:1200px){
+    .section-inner,.page-section .section-inner{max-width:1200px}
+    .hero-content{max-width:1000px}
+    .section{padding:100px 32px}
+}
+
 /* ============================================
    Shared Grid Styles (yin / xing)
    ============================================ */
