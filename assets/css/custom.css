@@ -77,21 +77,21 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 .section-orange .divider{background:linear-gradient(90deg,var(--orange),var(--orange-accent))}.section-orange .section-title{color:#8B4A06}.section-orange .section-desc{color:#7A5C3E}
 
 /* ============================================
-   Shared Grid Styles (yin / xing)
+   Shared Grid Styles (yin / xing) — Masonry
    ============================================ */
-.yin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-.yin-item{position:relative;border-radius:var(--r-m);overflow:hidden;cursor:pointer;aspect-ratio:3/4;background:var(--light);transition:var(--ease);border:1px solid rgba(76,175,130,.1);content-visibility:auto;contain-intrinsic-size:300px 400px}
+.yin-grid{column-count:4;column-gap:16px}
+.yin-item{break-inside:avoid;margin-bottom:16px;border-radius:var(--r-m);overflow:hidden;cursor:pointer;background:var(--light);transition:var(--ease);border:1px solid rgba(76,175,130,.1)}
 .yin-item:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(76,175,130,.18)}
-.yin-item img{width:100%;height:100%;object-fit:cover;transition:var(--ease)}
-.yin-item:hover img{transform:scale(1.04)}
+.yin-item img{display:block;width:100%;height:auto;transition:var(--ease)}
+.yin-item:hover img{transform:scale(1.03)}
 .yin-item .yin-caption{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:.85rem;opacity:0;transition:var(--ease)}
 .yin-item:hover .yin-caption{opacity:1}
 
-.xing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.xing-item{position:relative;border-radius:var(--r-m);overflow:hidden;cursor:pointer;aspect-ratio:16/10;background:var(--light);transition:var(--ease);border:1px solid rgba(232,120,10,.1);content-visibility:auto;contain-intrinsic-size:280px 175px}
+.xing-grid{column-count:3;column-gap:16px}
+.xing-item{break-inside:avoid;margin-bottom:16px;border-radius:var(--r-m);overflow:hidden;cursor:pointer;background:var(--light);transition:var(--ease);border:1px solid rgba(232,120,10,.1)}
 .xing-item:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(232,120,10,.18)}
-.xing-item img{width:100%;height:100%;object-fit:cover;transition:var(--ease)}
-.xing-item:hover img{transform:scale(1.04)}
+.xing-item img{display:block;width:100%;height:auto;transition:var(--ease)}
+.xing-item:hover img{transform:scale(1.03)}
 .xing-item .xing-caption{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:.85rem;opacity:0;transition:var(--ease)}
 .xing-item:hover .xing-caption{opacity:1}
 .xing-item .xing-place{position:absolute;top:12px;left:12px;padding:4px 10px;background:rgba(232,120,10,.85);color:#fff;border-radius:100px;font-size:.75rem;font-weight:500}
@@ -200,7 +200,7 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
 @keyframes fadeHint{0%{opacity:0}20%{opacity:1}80%{opacity:1}100%{opacity:0}}
 
 /* Empty state */
-.empty{color:var(--text3);text-align:center;padding:48px 24px;font-size:.95rem;grid-column:1/-1}
+.empty{color:var(--text3);text-align:center;padding:48px 24px;font-size:.95rem}
 .empty .empty-icon{font-size:2.5rem;margin-bottom:12px;opacity:.5}
 
 /* Responsive */
@@ -218,15 +218,22 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
     .about-grid{grid-template-columns:1fr;gap:24px}
     .about-card{position:static;max-width:300px;margin:0 auto}
     .article-grid{grid-template-columns:1fr}
-    .yin-grid{grid-template-columns:repeat(2,1fr)}
-    .xing-grid{grid-template-columns:1fr}
+    .yin-grid{column-count:2}
+    .xing-grid{column-count:2}
     .project-item{flex-direction:column;align-items:flex-start;gap:12px}
     .project-tags{align-self:flex-start}
     .modal{margin:12px;max-height:90vh}
     .modal-header{padding:24px 20px 0}
     .modal-body{padding:16px 20px 24px}
 }
-@media(max-width:480px){.yin-grid{grid-template-columns:1fr}}
+@media(max-width:480px){
+    .yin-grid{column-count:2}
+    .xing-grid{column-count:1}
+}
+@media(min-width:769px) and (max-width:1024px){
+    .yin-grid{column-count:3}
+    .xing-grid{column-count:2}
+}
 
 /* Animations */
 .fi{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
