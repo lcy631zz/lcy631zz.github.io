@@ -1,14 +1,14 @@
 {
-  "site_name": "空間",
+  "site_name": "首頁",
   "hero": {
     "badge": "歡迎來到我的部落格",
-    "title_1": "記錄",
-    "title_hl": "生活",
-    "title_2": "與",
-    "title_3": "探索",
-    "title_hl2": "技術",
-    "title_4": "的旅程",
-    "subtitle": "這裡是我在互聯網上的一方小天地，記錄著思考、創作與成長的點滴。",
+    "title_1": "這裡",
+    "title_hl": "可能",
+    "title_2": "有真實完整的",
+    "title_3": "",
+    "title_hl2": "我",
+    "title_4": "",
+    "subtitle": "my heart forever",
     "cta": "瞭解得更多"
   },
   "about": {

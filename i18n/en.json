@@ -1,14 +1,14 @@
 {
-  "site_name": "Space",
+  "site_name": "Home",
   "hero": {
     "badge": "Welcome to My Blog",
-    "title_1": "Documenting ",
-    "title_hl": "Life",
-    "title_2": " & ",
-    "title_3": "Exploring ",
-    "title_hl2": "Tech",
+    "title_1": "Here",
+    "title_hl": "Maybe",
+    "title_2": "you'll find the real ",
+    "title_3": "",
+    "title_hl2": "me",
     "title_4": "",
-    "subtitle": "A small corner of the internet where I record thoughts, creations, and growth.",
+    "subtitle": "my heart forever",
     "cta": "Learn More"
   },
   "about": {

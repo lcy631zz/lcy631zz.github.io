@@ -3,7 +3,7 @@ label = "简体中文"
 direction = "ltr"
 weight = 1
 
-title = "我的网站"
+title = "首页"
 copyright = ""
 
 [params.author]

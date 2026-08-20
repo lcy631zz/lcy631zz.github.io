@@ -1,14 +1,14 @@
 {
-  "site_name": "空间",
+  "site_name": "首页",
   "hero": {
     "badge": "欢迎来到我的博客",
-    "title_1": "记录",
-    "title_hl": "生活",
-    "title_2": "与",
-    "title_3": "探索",
-    "title_hl2": "技术",
-    "title_4": "的旅程",
-    "subtitle": "这里是我在互联网上的一方小天地，记录着思考、创作与成长的点滴。",
+    "title_1": "这里",
+    "title_hl": "可能",
+    "title_2": "有真实完整的",
+    "title_3": "",
+    "title_hl2": "我",
+    "title_4": "",
+    "subtitle": "my heart forever",
     "cta": "了解更多"
   },
   "about": {
