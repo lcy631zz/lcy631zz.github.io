@@ -468,11 +468,16 @@ link: "{link}"
         if r['rc'] != 0:
             return {'error': r['stderr'] or 'git status failed'}
         lines = r['stdout'].splitlines() if r['stdout'] else []
-        changed = [l for l in lines if l.strip()]
+        changed = [l for l in lines if l.strip() and not l.startswith('##')]
         branch = ''
         for l in lines:
             if l.startswith('##'):
-                branch = l
+                branch = l.lstrip('#').strip()
+                # Strip tracking info like "...origin/master" or " [ahead 1]"
+                if '...' in branch:
+                    branch = branch.split('...', 1)[0].strip()
+                if ' [' in branch:
+                    branch = branch.split(' [', 1)[0].strip()
                 break
         return {
             'branch': branch or 'unknown',
