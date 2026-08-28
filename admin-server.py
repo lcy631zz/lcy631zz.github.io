@@ -7,6 +7,7 @@
 import http.server
 import json
 import os
+import shutil
 import subprocess
 import sys
 from datetime import date, datetime
@@ -14,6 +15,7 @@ from urllib.parse import parse_qs, urlparse
 
 PORT = 8082
 BLOG_DIR = os.path.dirname(os.path.abspath(__file__))
+GIT_CMD = shutil.which('git') or '/usr/bin/git'
 
 class AdminHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -456,7 +458,7 @@ link: "{link}"
 
     def _git(self, args, timeout=30):
         result = subprocess.run(
-            ['git'] + args, cwd=BLOG_DIR, capture_output=True, text=True, timeout=timeout
+            [GIT_CMD] + args, cwd=BLOG_DIR, capture_output=True, text=True, timeout=timeout
         )
         out = result.stdout.strip()
         err = result.stderr.strip()
@@ -514,7 +516,9 @@ link: "{link}"
             return {'error': 'git commit 失败: ' + r['stderr'], 'steps': steps}
         steps.append(f'已提交: {msg}')
 
-        r = self._git(['push', 'origin', 'master'])
+        r = self._git(['rev-parse', '--abbrev-ref', 'HEAD'])
+        branch = r['stdout'].strip() if r['rc'] == 0 else 'master'
+        r = self._git(['push', 'origin', branch])
         if r['rc'] != 0:
             return {'error': 'git push 失败: ' + r['stderr'], 'committed': True, 'steps': steps}
         steps.append('已推送到 GitHub')
