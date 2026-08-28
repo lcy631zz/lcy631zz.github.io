@@ -244,6 +244,11 @@
             <form onsubmit="return submitForm(event, 'post')">
                 <input type="hidden" name="edit_id" value="">
                 <div class="form-group">
+                    <label>导入 .md 文件</label>
+                    <input type="file" name="md_file" id="postMdFile" accept=".md,text/markdown">
+                    <p class="hint">选择 Markdown 文件，自动解析标题、日期、标签和正文</p>
+                </div>
+                <div class="form-group">
                     <label>日期</label>
                     <input type="date" name="pub_date" id="pub_date">
                     <p class="hint">留空则使用今天</p>
@@ -275,6 +280,11 @@
             <p class="desc">CS学习记录与编程思考。</p>
             <form onsubmit="return submitForm(event, 'bi')">
                 <input type="hidden" name="edit_id" value="">
+                <div class="form-group">
+                    <label>导入 .md 文件</label>
+                    <input type="file" name="md_file" id="biMdFile" accept=".md,text/markdown">
+                    <p class="hint">选择 Markdown 文件，自动解析标题、日期、标签和正文</p>
+                </div>
                 <div class="form-group">
                     <label>日期</label>
                     <input type="date" name="pub_date" id="pub_date_bi">
@@ -511,6 +521,68 @@
         document.getElementById('photoUpload')?.addEventListener('change', function() { if (this.files[0]) handleUpload(this, 'photoUploadStatus', 'photoImgPath'); });
         document.getElementById('travelUpload')?.addEventListener('change', function() { if (this.files[0]) handleUpload(this, 'travelUploadStatus', 'travelImgPath'); });
         document.getElementById('zhaiUpload')?.addEventListener('change', function() { if (this.files[0]) handleUpload(this, 'zhaiUploadStatus', 'zhaiImgPath'); });
+
+        // ── Import Markdown File ──
+        function importMarkdown(file, type) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                let meta = {}, body = '';
+
+                // Parse YAML frontmatter
+                const fmMatch = text.match(/^---\r?\n([\s\S]*?)\r?\n---[\r\n]*([\s\S]*)$/);
+                if (fmMatch) {
+                    const fmLines = fmMatch[1].split(/\r?\n/);
+                    for (const line of fmLines) {
+                        const m = line.match(/^(\w+):\s*(.*)/);
+                        if (m) {
+                            let val = m[2].trim().replace(/^["']|["']$/g, '');
+                            meta[m[1]] = val;
+                        }
+                    }
+                    body = fmMatch[2].trim();
+                } else {
+                    body = text.trim();
+                }
+
+                // Find the form
+                const formId = type === 'bi' ? 'form-bi' : 'form-post';
+                const form = document.getElementById(formId);
+
+                // Fill fields
+                const dateInput = form.querySelector('input[name="pub_date"]');
+                if (dateInput && meta.date) dateInput.value = meta.date;
+
+                const periodInput = form.querySelector('input[name="period"]');
+                if (periodInput && meta.period) periodInput.value = meta.period;
+
+                const titleInput = form.querySelector('input[name="title"]');
+                if (titleInput && meta.title) titleInput.value = meta.title;
+
+                const tagsInput = form.querySelector('input[name="tags"]');
+                if (tagsInput && meta.tags) {
+                    let tags = meta.tags;
+                    if (tags.startsWith('[') && tags.endsWith(']')) {
+                        try { tags = JSON.parse(tags).join(' '); } catch(e) {}
+                    }
+                    tagsInput.value = tags;
+                }
+
+                const contentArea = form.querySelector('textarea[name="content"]');
+                if (contentArea) contentArea.value = body;
+
+                showMsg('已导入: ' + (meta.title || file.name), 'success');
+            };
+            reader.readAsText(file);
+        }
+
+        document.getElementById('postMdFile')?.addEventListener('change', function() {
+            if (this.files[0]) importMarkdown(this.files[0], 'post');
+        });
+        document.getElementById('biMdFile')?.addEventListener('change', function() {
+            if (this.files[0]) importMarkdown(this.files[0], 'bi');
+        });
 
         // ── Tab Switching ──
         function switchTab(type) {
