@@ -1,5 +1,5 @@
 ---
-title: "学校校历"
+title: "校历"
 date: "2026-08-28"
 description: ""
 tags: []
