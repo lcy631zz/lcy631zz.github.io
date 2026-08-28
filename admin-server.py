@@ -203,6 +203,13 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
 
         return data
 
+    def _norm(self, text):
+        """Normalize text: strip CR, collapse trailing whitespace per line"""
+        if not text:
+            return text
+        text = text.replace('\r\n', '\n').replace('\r', '\n')
+        return text
+
     def create_post(self, title, params):
         safe_title = title.strip()
         dir_path = os.path.join(BLOG_DIR, 'content', 'blog', safe_title)
@@ -226,7 +233,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             tag_list = [t.strip() for t in tags.replace(',', ' ').split() if t.strip()]
             tags_yaml = json.dumps(tag_list, ensure_ascii=False)
 
-        content = params.get('content', [''])[0].strip()
+        content = self._norm(params.get('content', [''])[0].strip())
         if not content:
             content = '在这里写下你的内容吧！'
 
@@ -433,7 +440,7 @@ tags: {tags_yaml}
             tags_yaml = json.dumps(tag_list, ensure_ascii=False)
         link = params.get('link', [''])[0].strip()
 
-        content = params.get('content', [''])[0].strip()
+        content = self._norm(params.get('content', [''])[0].strip())
         if not content:
             content = '在这里介绍你的项目...'
 
@@ -677,7 +684,7 @@ link: "{link}"
                     lines.append(f'{key}: {val}')
         lines.append('---')
         lines.append('')
-        lines.append(body)
+        lines.append(self._norm(body))
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write('\n'.join(lines))
 
@@ -944,7 +951,7 @@ link: "{link}"
             tag_list = [t.strip() for t in tags.replace(',', ' ').split() if t.strip()]
             tags_yaml = json.dumps(tag_list, ensure_ascii=False)
 
-        content = params.get('content', [''])[0].strip()
+        content = self._norm(params.get('content', [''])[0].strip())
         if not content:
             content = '在这里写下你的内容吧！'
 
