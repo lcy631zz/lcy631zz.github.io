@@ -204,11 +204,30 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
         return data
 
     def _norm(self, text):
-        """Normalize text: strip CR, collapse trailing whitespace per line"""
+        """Normalize text: unify line endings; convert leading ASCII spaces/tabs
+        to full-width spaces so Markdown never mistakes indented prose for a code block."""
         if not text:
             return text
         text = text.replace('\r\n', '\n').replace('\r', '\n')
-        return text
+        out = []
+        in_fence = False
+        for ln in text.split('\n'):
+            if ln.lstrip().startswith('```'):
+                in_fence = not in_fence
+                out.append(ln)
+                continue
+            if in_fence:
+                out.append(ln)
+                continue
+            stripped = ln.lstrip(' \t')
+            n_ws = len(ln) - len(stripped)
+            if n_ws and stripped:
+                width = 0
+                for ch in ln[:n_ws]:
+                    width += 4 if ch == '\t' else 1
+                ln = '\u3000' * ((width + 1) // 2) + stripped
+            out.append(ln)
+        return '\n'.join(out)
 
     def create_post(self, title, params):
         safe_title = title.strip()
@@ -249,7 +268,7 @@ tags: {tags_yaml}
 '''
 
         filepath = os.path.join(dir_path, 'index.zh-Hans.md')
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, 'w', encoding='utf-8', newline='\n') as f:
             f.write(md)
 
         return {'success': True, 'file': filepath, 'title': safe_title}
@@ -458,7 +477,7 @@ link: "{link}"
 '''
 
         filepath = os.path.join(dir_path, 'index.zh-Hans.md')
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, 'w', encoding='utf-8', newline='\n') as f:
             f.write(md)
 
         return {'success': True, 'file': filepath, 'title': safe_title}
@@ -685,7 +704,7 @@ link: "{link}"
         lines.append('---')
         lines.append('')
         lines.append(self._norm(body))
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, 'w', encoding='utf-8', newline='\n') as f:
             f.write('\n'.join(lines))
 
     def _get_post(self, cid):
@@ -967,7 +986,7 @@ tags: {tags_yaml}
 '''
 
         filepath = os.path.join(dir_path, 'index.zh-Hans.md')
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, 'w', encoding='utf-8', newline='\n') as f:
             f.write(md)
 
         return {'success': True, 'message': f'文章「{safe_title}」已发布', 'path': filepath}
