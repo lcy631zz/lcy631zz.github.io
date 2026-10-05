@@ -233,7 +233,7 @@ class AdminHandler(http.server.SimpleHTTPRequestHandler):
             tag_list = [t.strip() for t in tags.replace(',', ' ').split() if t.strip()]
             tags_yaml = json.dumps(tag_list, ensure_ascii=False)
 
-        content = self._norm(params.get('content', [''])[0].strip())
+        content = self._norm(params.get('content', [''])[0])
         if not content:
             content = '在这里写下你的内容吧！'
 
@@ -440,7 +440,7 @@ tags: {tags_yaml}
             tags_yaml = json.dumps(tag_list, ensure_ascii=False)
         link = params.get('link', [''])[0].strip()
 
-        content = self._norm(params.get('content', [''])[0].strip())
+        content = self._norm(params.get('content', [''])[0])
         if not content:
             content = '在这里介绍你的项目...'
 
@@ -755,7 +755,7 @@ link: "{link}"
         pub_date = params.get('pub_date', [''])[0].strip() or old_meta.get('date', date.today().isoformat())
         period = params.get('period', [''])[0].strip()
         tags = params.get('tags', [''])[0].strip()
-        content = params.get('content', [''])[0].strip() or body
+        content = self._norm(params.get('content', [''])[0]) or body
         meta = {
             'title': title,
             'date': pub_date,
@@ -782,7 +782,7 @@ link: "{link}"
         desc = params.get('desc', [''])[0].strip()
         tags = params.get('tags', [''])[0].strip()
         link = params.get('link', [''])[0].strip()
-        content = params.get('content', [''])[0].strip() or body
+        content = self._norm(params.get('content', [''])[0]) or body
         meta = {
             'title': title,
             'date': pub_date,
@@ -951,7 +951,7 @@ link: "{link}"
             tag_list = [t.strip() for t in tags.replace(',', ' ').split() if t.strip()]
             tags_yaml = json.dumps(tag_list, ensure_ascii=False)
 
-        content = self._norm(params.get('content', [''])[0].strip())
+        content = self._norm(params.get('content', [''])[0])
         if not content:
             content = '在这里写下你的内容吧！'
 
@@ -1006,7 +1006,7 @@ tags: {tags_yaml}
         pub_date = params.get('pub_date', [''])[0].strip() or old_meta.get('date', date.today().isoformat())
         period = params.get('period', [''])[0].strip()
         tags = params.get('tags', [''])[0].strip()
-        content = params.get('content', [''])[0].strip() or body
+        content = self._norm(params.get('content', [''])[0]) or body
         meta = {
             'title': title,
             'date': pub_date,
