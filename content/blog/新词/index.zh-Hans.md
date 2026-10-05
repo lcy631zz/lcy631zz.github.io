@@ -1,6 +1,6 @@
 ---
 title: "新词"
-date: 2026-10-05
+date: "2026-10-05"
 period: "高三"
 description: ""
 tags: []
