@@ -352,3 +352,9 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);line-heig
     .hub-card h3{font-size:1.15rem}
     .hub-card p{font-size:.9rem}
 }
+
+/* 保留编辑器里输入的换行与空格（诗 / 带格式文本按原样显示） */
+.detail-body {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
